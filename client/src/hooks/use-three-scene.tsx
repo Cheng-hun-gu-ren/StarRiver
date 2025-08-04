@@ -206,6 +206,39 @@ export function useThreeScene({
 
       createConnections(constellationGroup, starPositions, constellation.color);
       
+      // Add constellation glow effect
+      const glowGeometry = new THREE.SphereGeometry(8, 32, 16);
+      const glowMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          color: { value: new THREE.Color(constellation.color) },
+          viewVector: { value: new THREE.Vector3() }
+        },
+        vertexShader: `
+          uniform vec3 viewVector;
+          varying float intensity;
+          void main() {
+            vec3 vNormal = normalize( normalMatrix * normal );
+            vec3 vNormel = normalize( normalMatrix * viewVector );
+            intensity = pow( dot(vNormal, vNormel), 3.0 );
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 color;
+          varying float intensity;
+          void main() {
+            vec3 glow = color * intensity;
+            gl_FragColor = vec4( glow, intensity * 0.15 );
+          }
+        `,
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending,
+        transparent: true
+      });
+      
+      const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+      constellationGroup.add(glowMesh);
+      
       const constellationRadius = 15;
       const constellationAngle = (cIndex / constellations.length) * Math.PI * 2;
       const constellationHeight = (Math.random() - 0.5) * 10;
@@ -228,50 +261,92 @@ export function useThreeScene({
     const starGroup = new THREE.Group();
     starGroup.userData = { tool: tool, originalScale: 1 };
 
-    const coreGeometry = new THREE.SphereGeometry(0.3, 12, 8);
-    const glowGeometry = new THREE.SphereGeometry(0.5, 12, 8);
+    // Larger invisible sphere for better click detection
+    const clickGeometry = new THREE.SphereGeometry(1.2, 8, 8);
+    const clickMaterial = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false
+    });
+    const clickMesh = new THREE.Mesh(clickGeometry, clickMaterial);
+    starGroup.add(clickMesh);
+
+    // Core star with enhanced visuals
+    const coreGeometry = new THREE.SphereGeometry(0.4, 16, 12);
+    const glowGeometry = new THREE.SphereGeometry(0.7, 16, 12);
+    const outerGlowGeometry = new THREE.SphereGeometry(1.0, 12, 8);
     
     const coreMaterial = new THREE.MeshBasicMaterial({
       color: constellationColor,
       transparent: true,
-      opacity: 0.9
+      opacity: 1
     });
     
     const glowMaterial = new THREE.MeshBasicMaterial({
       color: constellationColor,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0.4,
+      blending: THREE.AdditiveBlending
+    });
+
+    const outerGlowMaterial = new THREE.MeshBasicMaterial({
+      color: constellationColor,
+      transparent: true,
+      opacity: 0.2,
       blending: THREE.AdditiveBlending
     });
 
     const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
     const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+    const outerGlowMesh = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
     
     starGroup.add(coreMesh);
     starGroup.add(glowMesh);
+    starGroup.add(outerGlowMesh);
+
+    // Tool logo import
+    const toolLogos: Record<string, string> = {
+      'claude-code': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.svg',
+      'claude-web': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.svg',
+      'cursor': 'https://raw.githubusercontent.com/getcursor/cursor/main/resources/app/resources/win32/cursor.ico',
+      'bolt': 'https://www.stackblitz.com/favicon.ico',
+      'deepseek-api': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/deepseek-logo-icon.svg',
+      'gemini': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-gemini-icon.svg',
+      'gamma': 'https://gamma.app/favicon.ico',
+      'wispr-flow': 'https://wispr.com/favicon.ico',
+      'n8n': 'https://n8n.io/favicon.ico',
+      'notebookllm': 'https://notebooklm.google.com/favicon.ico'
+    };
+    const logoUrl = toolLogos[tool.id];
+    const fallbackEmoji = tool.icon;
 
     const labelDiv = document.createElement('div');
     labelDiv.innerHTML = `
       <div style="
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.85);
         color: white;
-        padding: 4px 8px;
-        border-radius: 8px;
-        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 10px;
+        font-size: 13px;
         font-weight: 500;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         white-space: nowrap;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         transform: translateY(-20px);
+        display: flex;
+        align-items: center;
+        gap: 6px;
       ">
-        ${tool.icon} ${tool.name}
+        ${logoUrl ? `<img src="${logoUrl}" style="width: 16px; height: 16px; filter: brightness(0) invert(1);" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />` : ''}
+        <span style="${logoUrl ? 'display:none;' : ''}">${fallbackEmoji}</span>
+        ${tool.name}
       </div>
     `;
     
     const label = new CSS2DObject(labelDiv);
-    label.position.set(0, 1, 0);
+    label.position.set(0, 1.2, 0);
     starGroup.add(label);
 
     return starGroup;
@@ -390,7 +465,17 @@ export function useThreeScene({
     
     sceneRef.current.starMeshes.forEach((star, index) => {
       const breathe = 1 + Math.sin(elapsedTime * 2 + index * 0.5) * 0.1;
-      star.scale.setScalar(breathe);
+      star.scale.setScalar(breathe * (star.userData.originalScale || 1));
+      
+      // Animate outer glow opacity
+      const outerGlow = star.children.find(child => 
+        child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry && 
+        (child.geometry as THREE.SphereGeometry).parameters.radius === 1.0
+      );
+      if (outerGlow && outerGlow instanceof THREE.Mesh) {
+        const glowMaterial = outerGlow.material as THREE.MeshBasicMaterial;
+        glowMaterial.opacity = 0.2 + Math.sin(elapsedTime * 3 + index) * 0.1;
+      }
     });
     
     sceneRef.current.controls.update();
