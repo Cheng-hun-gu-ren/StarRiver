@@ -253,6 +253,68 @@ export function useThreeScene({
       allConstellationsContainer.add(constellationGroup);
     });
 
+    // Create inter-constellation connections for multi-category tools
+    const connectorTools = aiTools.filter(tool => tool.isConnector);
+    const interConnections = new THREE.Group();
+    
+    connectorTools.forEach(tool => {
+      if (tool.categories && tool.categories.length > 1) {
+        const toolPositions: THREE.Vector3[] = [];
+        
+        // Find the tool's position in each constellation it belongs to
+        tool.categories.forEach(category => {
+          const constellation = constellations.find(c => 
+            (category === '开发AI工具' && c.name === '开发星座') ||
+            (category === '内容创作' && c.name === '内容星座') ||
+            (category === '效率工具' && c.name === '效率星座')
+          );
+          
+          if (constellation && constellationGroups[constellation.name]) {
+            const group = constellationGroups[constellation.name];
+            // Find the star in this constellation
+            group.children.forEach(child => {
+              if (child.userData && child.userData.tool && child.userData.tool.id === tool.id) {
+                const worldPos = new THREE.Vector3();
+                child.getWorldPosition(worldPos);
+                toolPositions.push(worldPos);
+              }
+            });
+          }
+        });
+        
+        // Create connections between the tool's positions in different constellations
+        if (toolPositions.length > 1) {
+          for (let i = 0; i < toolPositions.length - 1; i++) {
+            for (let j = i + 1; j < toolPositions.length; j++) {
+              const points = [];
+              const segments = 30;
+              
+              for (let k = 0; k <= segments; k++) {
+                const t = k / segments;
+                const point = new THREE.Vector3().lerpVectors(toolPositions[i], toolPositions[j], t);
+                // Add some curvature to make the connection more elegant
+                const curvature = Math.sin(t * Math.PI) * 2;
+                point.y += curvature;
+                points.push(point);
+              }
+              
+              const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+              const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x9333EA, // Purple for inter-constellation connections
+                transparent: true,
+                opacity: 0.3,
+                linewidth: 3
+              });
+              
+              const line = new THREE.Line(lineGeometry, lineMaterial);
+              interConnections.add(line);
+            }
+          }
+        }
+      }
+    });
+    
+    scene.add(interConnections);
     scene.add(allConstellationsContainer);
     return { starMeshes, constellationGroups, allConstellationsContainer };
   };
@@ -261,8 +323,12 @@ export function useThreeScene({
     const starGroup = new THREE.Group();
     starGroup.userData = { tool: tool, originalScale: 1 };
 
+    // Check if this is a connector tool (belongs to multiple categories)
+    const isConnector = tool.isConnector || false;
+    const starScale = isConnector ? 1.3 : 1; // Connectors are 30% larger
+
     // Larger invisible sphere for better click detection
-    const clickGeometry = new THREE.SphereGeometry(1.2, 8, 8);
+    const clickGeometry = new THREE.SphereGeometry(1.2 * starScale, 8, 8);
     const clickMaterial = new THREE.MeshBasicMaterial({
       transparent: true,
       opacity: 0,
@@ -272,27 +338,30 @@ export function useThreeScene({
     starGroup.add(clickMesh);
 
     // Core star with enhanced visuals
-    const coreGeometry = new THREE.SphereGeometry(0.4, 16, 12);
-    const glowGeometry = new THREE.SphereGeometry(0.7, 16, 12);
-    const outerGlowGeometry = new THREE.SphereGeometry(1.0, 12, 8);
+    const coreGeometry = new THREE.SphereGeometry(0.4 * starScale, 16, 12);
+    const glowGeometry = new THREE.SphereGeometry(0.7 * starScale, 16, 12);
+    const outerGlowGeometry = new THREE.SphereGeometry(1.0 * starScale, 12, 8);
+    
+    // Use purple color for connector tools
+    const starColor = isConnector ? 0x9333EA : constellationColor;
     
     const coreMaterial = new THREE.MeshBasicMaterial({
-      color: constellationColor,
+      color: starColor,
       transparent: true,
       opacity: 1
     });
     
     const glowMaterial = new THREE.MeshBasicMaterial({
-      color: constellationColor,
+      color: starColor,
       transparent: true,
-      opacity: 0.4,
+      opacity: isConnector ? 0.6 : 0.4, // Stronger glow for connectors
       blending: THREE.AdditiveBlending
     });
 
     const outerGlowMaterial = new THREE.MeshBasicMaterial({
-      color: constellationColor,
+      color: starColor,
       transparent: true,
-      opacity: 0.2,
+      opacity: isConnector ? 0.3 : 0.2, // Stronger outer glow for connectors
       blending: THREE.AdditiveBlending
     });
 
@@ -315,7 +384,14 @@ export function useThreeScene({
       'gamma': 'https://gamma.app/favicon.ico',
       'wispr-flow': 'https://wispr.com/favicon.ico',
       'n8n': 'https://n8n.io/favicon.ico',
-      'notebookllm': 'https://notebooklm.google.com/favicon.ico'
+      'notebookllm': 'https://notebooklm.google.com/favicon.ico',
+      'v0': 'https://v0.dev/favicon.ico',
+      'replit': 'https://replit.com/favicon.ico',
+      'jimeng': 'https://jimeng.jianying.com/favicon.ico',
+      'doubao': 'https://seed.bytedance.com/favicon.ico',
+      'perplexity': 'https://www.perplexity.ai/favicon.ico',
+      'lovable': 'https://lovable.dev/favicon.ico',
+      'roo-code': 'https://marketplace.visualstudio.com/favicon.ico'
     };
     const logoUrl = toolLogos[tool.id];
     const fallbackEmoji = tool.icon;
@@ -323,25 +399,29 @@ export function useThreeScene({
     const labelDiv = document.createElement('div');
     labelDiv.innerHTML = `
       <div style="
-        background: rgba(0, 0, 0, 0.85);
+        background: ${isConnector ? 'linear-gradient(135deg, rgba(147, 51, 234, 0.9), rgba(124, 58, 237, 0.9))' : 'rgba(0, 0, 0, 0.85)'};
         color: white;
         padding: 6px 10px;
         border-radius: 10px;
         font-size: 13px;
         font-weight: 500;
         backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.25);
+        border: 1px solid ${isConnector ? 'rgba(147, 51, 234, 0.5)' : 'rgba(255, 255, 255, 0.25)'};
         white-space: nowrap;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 4px 12px ${isConnector ? 'rgba(147, 51, 234, 0.5)' : 'rgba(0, 0, 0, 0.4)'};
         transform: translateY(-20px);
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
       ">
-        ${logoUrl ? `<img src="${logoUrl}" style="width: 16px; height: 16px; filter: brightness(0) invert(1);" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />` : ''}
-        <span style="${logoUrl ? 'display:none;' : ''}">${fallbackEmoji}</span>
-        ${tool.name}
+        <div style="display: flex; align-items: center; gap: 6px;">
+          ${logoUrl ? `<img src="${logoUrl}" style="width: 16px; height: 16px; filter: brightness(0) invert(1);" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />` : ''}
+          <span style="${logoUrl ? 'display:none;' : ''}">${fallbackEmoji}</span>
+          ${tool.name}
+        </div>
+        ${isConnector ? `<div style="font-size: 10px; background: rgba(255, 255, 255, 0.2); padding: 2px 6px; border-radius: 6px;">连接节点</div>` : ''}
       </div>
     `;
     
