@@ -10,8 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-bg: #030418;
-            --secondary-bg: #0a0a24;
+            --primary-bg: #000000;
+            --secondary-bg: #0a0a1a;
             --glass-bg: rgba(10, 10, 36, 0.85);
             --primary-text: #e0e0ff;
             --border-color: rgba(147, 112, 219, 0.3);
@@ -169,7 +169,7 @@
             pointer-events: all;
             display: flex;
             gap: 0.75rem;
-            background: rgba(0,0,0,0.25);
+            background: rgba(0,0,0,0.6);
             padding: 0.75rem 1.25rem;
             border-radius: 50px;
             backdrop-filter: blur(15px);
@@ -409,6 +409,19 @@
             transform: translateY(-1px);
         }
 
+        .multi-constellation-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #9370db, #60a5fa);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(147, 112, 219, 0.5);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .nav-buttons {
@@ -497,103 +510,101 @@
 
     <div id="tool-detail-panel"></div>
 
-    <script>
-    // Tool logos mapping
-    const toolLogos = {
-        'claude-code': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.svg',
-        'claude-web': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.svg',
-        'cursor': 'https://raw.githubusercontent.com/getcursor/cursor/main/resources/app/resources/win32/cursor.ico',
-        'bolt': 'https://www.stackblitz.com/favicon.ico',
-        'deepseek-api': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/deepseek-logo-icon.svg',
-        'gemini': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-gemini-icon.svg',
-        'gamma': 'https://gamma.app/favicon.ico',
-        'wispr-flow': 'https://wispr.com/favicon.ico',
-        'n8n': 'https://n8n.io/favicon.ico',
-        'notebookllm': 'https://notebooklm.google.com/favicon.ico',
-        'v0': 'https://v0.dev/favicon.ico',
-        'replit': 'https://replit.com/favicon.ico',
-        'jimeng': 'https://jimeng.jianying.com/favicon.ico',
-        'doubao': 'https://seed.bytedance.com/favicon.ico',
-        'perplexity': 'https://www.perplexity.ai/favicon.ico',
-        'lovable': 'https://lovable.dev/favicon.ico',
-        'roo-code': 'https://marketplace.visualstudio.com/favicon.ico'
-    };
-
-    const aiTools = [ 
-        // 开发工具
-        { id: 'claude-code', name: 'Claude Code', category: '开发AI工具', description: '主力AI工具，终端命令行AI助手，深度集成开发工作流程。提供实时代码建议、系统诊断和工作流优化。', usage: '日常编程、系统管理、问题解决', proficiency: 95, icon: '🤖', features: ['命令行集成', '代码生成', '系统诊断', '工作流优化', '实时建议'], categories: ['development', 'productivity'] }, 
-        { id: 'cursor', name: 'Cursor', category: '开发AI工具', description: '革命性的AI编程编辑器，将AI深度集成到开发环境中，提供智能代码补全和重构建议。', usage: '代码编写、重构、调试', proficiency: 88, icon: '⌨️', features: ['智能补全', 'AI重构', '代码解释', '快速修复', '上下文感知'], categories: ['development'] }, 
-        { id: 'bolt', name: 'Bolt', category: '开发AI工具', description: '快速原型和全栈开发AI助手，能够从想法快速生成可运行的应用程序。', usage: '快速原型、全栈开发、想法验证', proficiency: 75, icon: '⚡', features: ['快速原型', '全栈生成', '即时预览', '部署集成', '模板库'], categories: ['development', 'productivity'] }, 
-        { id: 'deepseek-api', name: 'DeepSeek API', category: '开发AI工具', description: '高性能的AI API服务，提供强大的推理能力和代码生成功能，成本效益极高。', usage: 'API集成、自动化任务、批量处理', proficiency: 82, icon: '🔌', features: ['高性能API', '代码生成', '批量处理', '成本效益', '易集成'], categories: ['development'] }, 
-        { id: 'v0', name: 'v0 by Vercel', category: '开发AI工具', description: 'AI驱动的UI生成器，将自然语言描述转换为React组件，支持Tailwind CSS和shadcn/ui。', usage: 'UI组件生成、快速原型、前端开发', proficiency: 80, icon: '🎨', features: ['文本到UI', 'React组件', 'Tailwind CSS', '即时预览', '多模态输入'], categories: ['development', 'content'] },
-        { id: 'replit', name: 'Replit Agent', category: '开发AI工具', description: '云端AI开发平台，将自然语言转换为完整应用，包含前后端、数据库和部署。', usage: '全栈开发、快速原型、协作编程', proficiency: 85, icon: '🚀', features: ['AI Agent', '云端IDE', '一键部署', '实时协作', '多语言支持'], categories: ['development', 'productivity'] },
-        { id: 'lovable', name: 'Lovable', category: '开发AI工具', description: 'AI全栈应用构建器，通过自然语言生成完整Web应用，提供代码所有权。', usage: 'MVP开发、应用原型、无代码开发', proficiency: 75, icon: '💝', features: ['自然语言编程', '全栈生成', 'GitHub集成', '实时预览', '代码导出'], categories: ['development', 'productivity'] },
-        { id: 'roo-code', name: 'Roo Code', category: '开发AI工具', description: 'VS Code中的AI开发团队，提供多种专门模式的自主编程助手。', usage: 'VS Code开发、代码审查、架构设计', proficiency: 78, icon: '🦘', features: ['多模式AI', '自主开发', 'MCP集成', '浏览器自动化', '成本优化'], categories: ['development'] },
-        
-        // 内容创作工具
-        { id: 'claude-web', name: 'Claude (网页版)', category: '内容创作', description: '最早接触的AI工具，用于学习、研究和内容创作。强大的自然语言处理能力，支持复杂任务推理。', usage: '研究分析、写作辅助、学习讨论', proficiency: 90, icon: '💬', features: ['自然对话', '研究分析', '创作辅助', '多语言支持', '推理能力'], categories: ['content', 'productivity'] }, 
-        { id: 'gemini', name: 'Gemini', category: '内容创作', description: 'Google的多模态AI模型，在图像理解、视频分析和复杂推理方面表现卓越。', usage: '多模态分析、图像处理、视频理解', proficiency: 78, icon: '💎', features: ['多模态处理', '图像分析', '视频理解', '复杂推理', '大上下文'], categories: ['content'] }, 
-        { id: 'gamma', name: 'Gamma', category: '内容创作', description: 'AI驱动的演示文稿和文档创建工具，能够快速生成专业级的视觉内容。', usage: '演示文稿、文档设计、视觉内容', proficiency: 70, icon: '📊', features: ['自动设计', '模板生成', '内容优化', '协作功能', '导出选项'], categories: ['content', 'productivity'] }, 
-        { id: 'wispr-flow', name: 'Wispr Flow', category: '内容创作', description: '先进的语音转文字AI工具，支持实时转录和多语言识别，准确率极高。', usage: '语音转录、会议记录、内容创作', proficiency: 85, icon: '🎙️', features: ['实时转录', '多语言支持', '高准确率', '标点智能', '格式化输出'], categories: ['content', 'productivity'] },
-        { id: 'jimeng', name: '即梦 AI', category: '内容创作', description: '字节跳动的AI视频生成平台，支持文本和图像生成高质量短视频。', usage: '视频创作、社交媒体、营销内容', proficiency: 72, icon: '🎬', features: ['文本生成视频', '图像生成视频', '智能画布', '故事创作', '中文优化'], categories: ['content'] },
-        { id: 'doubao', name: '豆包 AI', category: '内容创作', description: '字节跳动的旗舰AI助手，中国最受欢迎的消费级AI应用，支持多模态功能。', usage: '对话交互、图像生成、内容创作', proficiency: 76, icon: '🌱', features: ['多模态AI', '图像生成', '视频生成', '3D生成', '极低价格'], categories: ['content', 'productivity'] },
-        
-        // 效率工具
-        { id: 'n8n', name: 'n8n', category: '效率工具', description: '开源的工作流自动化平台，可以连接各种服务和AI工具，创建复杂的自动化流程。', usage: '工作流自动化、数据集成、任务编排', proficiency: 80, icon: '🔄', features: ['可视化编排', '丰富集成', '自定义节点', '开源免费', '企业级'], categories: ['productivity'] }, 
-        { id: 'notebookllm', name: 'NotebookLM', category: '效率工具', description: 'Google的AI研究助手，能够基于用户文档创建个性化的AI研究伙伴。', usage: '文档分析、研究辅助、知识提取', proficiency: 72, icon: '📚', features: ['文档理解', '知识提取', '个性化AI', '研究助手', '引用追踪'], categories: ['productivity', 'content'] },
-        { id: 'perplexity', name: 'Perplexity', category: '效率工具', description: 'AI驱动的搜索引擎，提供实时准确的答案，带有引用来源。', usage: '研究搜索、实时信息、知识获取', proficiency: 83, icon: '🔍', features: ['实时搜索', '引用来源', '深度研究', 'API访问', '多模态搜索'], categories: ['productivity', 'content'] }
-    ];
-
-    const constellations = [
-        { name: "开发星座", nameEn: "Development", color: 0x60a5fa, tools: ['cursor', 'deepseek-api', 'v0', 'roo-code', 'claude-code', 'bolt', 'replit', 'lovable'], icon: '💻' },
-        { name: "内容星座", nameEn: "Content", color: 0xf472b6, tools: ['gemini', 'jimeng', 'v0', 'claude-web', 'gamma', 'wispr-flow', 'doubao', 'notebookllm', 'perplexity'], icon: '📝' },
-        { name: "效率星座", nameEn: "Productivity", color: 0xfacc15, tools: ['n8n', 'claude-code', 'bolt', 'replit', 'lovable', 'claude-web', 'gamma', 'wispr-flow', 'doubao', 'notebookllm', 'perplexity'], icon: '⚡' }
-    ];
-    
-    // Track which tools belong to multiple constellations
-    const multiConstellationTools = new Set();
-    const toolConstellations = {};
-    constellations.forEach(constellation => {
-        constellation.tools.forEach(tool => {
-            if (!toolConstellations[tool]) {
-                toolConstellations[tool] = [];
-            }
-            toolConstellations[tool].push(constellation.name);
-            if (toolConstellations[tool].length > 1) {
-                multiConstellationTools.add(tool);
-            }
-        });
-    });
-
-    function getProficiencyDescription(proficiency) {
-        if (proficiency >= 90) return "专家级 - 深度集成工作流 | Expert Level";
-        if (proficiency >= 80) return "熟练级 - 经常使用 | Proficient";
-        if (proficiency >= 70) return "中级 - 定期使用 | Intermediate";
-        return "初级 - 偶尔使用 | Beginner";
-    }
-
-    function updateLoadingProgress(progress, text) {
-        const progressBar = document.getElementById('loading-progress-bar');
-        const loadingText = document.querySelector('.loading-text');
-        if (progressBar) progressBar.style.width = `${progress}%`;
-        if (loadingText) loadingText.textContent = text;
-    }
-
-    function hideLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-            loadingScreen.classList.add('hidden');
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 800);
-        }
-    }
-    </script>
-
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        // Tool logos mapping
+        const toolLogos = {
+            'claude-code': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.svg',
+            'claude-web': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.svg',
+            'cursor': 'https://raw.githubusercontent.com/getcursor/cursor/main/resources/app/resources/win32/cursor.ico',
+            'bolt': 'https://www.stackblitz.com/favicon.ico',
+            'deepseek-api': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/deepseek-logo-icon.svg',
+            'gemini': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-gemini-icon.svg',
+            'gamma': 'https://gamma.app/favicon.ico',
+            'wispr-flow': 'https://wispr.com/favicon.ico',
+            'n8n': 'https://n8n.io/favicon.ico',
+            'notebookllm': 'https://notebooklm.google.com/favicon.ico',
+            'v0': 'https://v0.dev/favicon.ico',
+            'replit': 'https://replit.com/favicon.ico',
+            'jimeng': 'https://jimeng.jianying.com/favicon.ico',
+            'doubao': 'https://seed.bytedance.com/favicon.ico',
+            'perplexity': 'https://www.perplexity.ai/favicon.ico',
+            'lovable': 'https://lovable.dev/favicon.ico',
+            'roo-code': 'https://marketplace.visualstudio.com/favicon.ico'
+        };
+
+        const aiTools = [ 
+            // 开发工具
+            { id: 'claude-code', name: 'Claude Code', category: '开发AI工具', description: '主力AI工具，终端命令行AI助手，深度集成开发工作流程。提供实时代码建议、系统诊断和工作流优化。', usage: '日常编程、系统管理、问题解决', proficiency: 95, icon: '🤖', features: ['命令行集成', '代码生成', '系统诊断', '工作流优化', '实时建议'], categories: ['development', 'productivity'] }, 
+            { id: 'cursor', name: 'Cursor', category: '开发AI工具', description: '革命性的AI编程编辑器，将AI深度集成到开发环境中，提供智能代码补全和重构建议。', usage: '代码编写、重构、调试', proficiency: 88, icon: '⌨️', features: ['智能补全', 'AI重构', '代码解释', '快速修复', '上下文感知'], categories: ['development'] }, 
+            { id: 'bolt', name: 'Bolt', category: '开发AI工具', description: '快速原型和全栈开发AI助手，能够从想法快速生成可运行的应用程序。', usage: '快速原型、全栈开发、想法验证', proficiency: 75, icon: '⚡', features: ['快速原型', '全栈生成', '即时预览', '部署集成', '模板库'], categories: ['development', 'productivity'] }, 
+            { id: 'deepseek-api', name: 'DeepSeek API', category: '开发AI工具', description: '高性能的AI API服务，提供强大的推理能力和代码生成功能，成本效益极高。', usage: 'API集成、自动化任务、批量处理', proficiency: 82, icon: '🔌', features: ['高性能API', '代码生成', '批量处理', '成本效益', '易集成'], categories: ['development'] }, 
+            { id: 'v0', name: 'v0 by Vercel', category: '开发AI工具', description: 'AI驱动的UI生成器，将自然语言描述转换为React组件，支持Tailwind CSS和shadcn/ui。', usage: 'UI组件生成、快速原型、前端开发', proficiency: 80, icon: '🎨', features: ['文本到UI', 'React组件', 'Tailwind CSS', '即时预览', '多模态输入'], categories: ['development', 'content'] },
+            { id: 'replit', name: 'Replit Agent', category: '开发AI工具', description: '云端AI开发平台，将自然语言转换为完整应用，包含前后端、数据库和部署。', usage: '全栈开发、快速原型、协作编程', proficiency: 85, icon: '🚀', features: ['AI Agent', '云端IDE', '一键部署', '实时协作', '多语言支持'], categories: ['development', 'productivity'] },
+            { id: 'lovable', name: 'Lovable', category: '开发AI工具', description: 'AI全栈应用构建器，通过自然语言生成完整Web应用，提供代码所有权。', usage: 'MVP开发、应用原型、无代码开发', proficiency: 75, icon: '💝', features: ['自然语言编程', '全栈生成', 'GitHub集成', '实时预览', '代码导出'], categories: ['development', 'productivity'] },
+            { id: 'roo-code', name: 'Roo Code', category: '开发AI工具', description: 'VS Code中的AI开发团队，提供多种专门模式的自主编程助手。', usage: 'VS Code开发、代码审查、架构设计', proficiency: 78, icon: '🦘', features: ['多模式AI', '自主开发', 'MCP集成', '浏览器自动化', '成本优化'], categories: ['development'] },
+            
+            // 内容创作工具
+            { id: 'claude-web', name: 'Claude (网页版)', category: '内容创作', description: '最早接触的AI工具，用于学习、研究和内容创作。强大的自然语言处理能力，支持复杂任务推理。', usage: '研究分析、写作辅助、学习讨论', proficiency: 90, icon: '💬', features: ['自然对话', '研究分析', '创作辅助', '多语言支持', '推理能力'], categories: ['content', 'productivity'] }, 
+            { id: 'gemini', name: 'Gemini', category: '内容创作', description: 'Google的多模态AI模型，在图像理解、视频分析和复杂推理方面表现卓越。', usage: '多模态分析、图像处理、视频理解', proficiency: 78, icon: '💎', features: ['多模态处理', '图像分析', '视频理解', '复杂推理', '大上下文'], categories: ['content'] }, 
+            { id: 'gamma', name: 'Gamma', category: '内容创作', description: 'AI驱动的演示文稿和文档创建工具，能够快速生成专业级的视觉内容。', usage: '演示文稿、文档设计、视觉内容', proficiency: 70, icon: '📊', features: ['自动设计', '模板生成', '内容优化', '协作功能', '导出选项'], categories: ['content', 'productivity'] }, 
+            { id: 'wispr-flow', name: 'Wispr Flow', category: '内容创作', description: '先进的语音转文字AI工具，支持实时转录和多语言识别，准确率极高。', usage: '语音转录、会议记录、内容创作', proficiency: 85, icon: '🎙️', features: ['实时转录', '多语言支持', '高准确率', '标点智能', '格式化输出'], categories: ['content', 'productivity'] },
+            { id: 'jimeng', name: '即梦 AI', category: '内容创作', description: '字节跳动的AI视频生成平台，支持文本和图像生成高质量短视频。', usage: '视频创作、社交媒体、营销内容', proficiency: 72, icon: '🎬', features: ['文本生成视频', '图像生成视频', '智能画布', '故事创作', '中文优化'], categories: ['content'] },
+            { id: 'doubao', name: '豆包 AI', category: '内容创作', description: '字节跳动的旗舰AI助手，中国最受欢迎的消费级AI应用，支持多模态功能。', usage: '对话交互、图像生成、内容创作', proficiency: 76, icon: '🌱', features: ['多模态AI', '图像生成', '视频生成', '3D生成', '极低价格'], categories: ['content', 'productivity'] },
+            
+            // 效率工具
+            { id: 'n8n', name: 'n8n', category: '效率工具', description: '开源的工作流自动化平台，可以连接各种服务和AI工具，创建复杂的自动化流程。', usage: '工作流自动化、数据集成、任务编排', proficiency: 80, icon: '🔄', features: ['可视化编排', '丰富集成', '自定义节点', '开源免费', '企业级'], categories: ['productivity'] }, 
+            { id: 'notebookllm', name: 'NotebookLM', category: '效率工具', description: 'Google的AI研究助手，能够基于用户文档创建个性化的AI研究伙伴。', usage: '文档分析、研究辅助、知识提取', proficiency: 72, icon: '📚', features: ['文档理解', '知识提取', '个性化AI', '研究助手', '引用追踪'], categories: ['productivity', 'content'] },
+            { id: 'perplexity', name: 'Perplexity', category: '效率工具', description: 'AI驱动的搜索引擎，提供实时准确的答案，带有引用来源。', usage: '研究搜索、实时信息、知识获取', proficiency: 83, icon: '🔍', features: ['实时搜索', '引用来源', '深度研究', 'API访问', '多模态搜索'], categories: ['productivity', 'content'] }
+        ];
+
+        const constellations = [
+            { name: "开发星座", nameEn: "Development", color: 0x60a5fa, tools: ['cursor', 'deepseek-api', 'v0', 'roo-code', 'claude-code', 'bolt', 'replit', 'lovable'], icon: '💻' },
+            { name: "内容星座", nameEn: "Content", color: 0xf472b6, tools: ['gemini', 'jimeng', 'v0', 'claude-web', 'gamma', 'wispr-flow', 'doubao', 'notebookllm', 'perplexity'], icon: '📝' },
+            { name: "效率星座", nameEn: "Productivity", color: 0xfacc15, tools: ['n8n', 'claude-code', 'bolt', 'replit', 'lovable', 'claude-web', 'gamma', 'wispr-flow', 'doubao', 'notebookllm', 'perplexity'], icon: '⚡' }
+        ];
+        
+        // Track which tools belong to multiple constellations
+        const multiConstellationTools = new Set();
+        const toolConstellations = {};
+        constellations.forEach(constellation => {
+            constellation.tools.forEach(tool => {
+                if (!toolConstellations[tool]) {
+                    toolConstellations[tool] = [];
+                }
+                toolConstellations[tool].push(constellation.name);
+                if (toolConstellations[tool].length > 1) {
+                    multiConstellationTools.add(tool);
+                }
+            });
+        });
+
+        function getProficiencyDescription(proficiency) {
+            if (proficiency >= 90) return "专家级 - 深度集成工作流 | Expert Level";
+            if (proficiency >= 80) return "熟练级 - 经常使用 | Proficient";
+            if (proficiency >= 70) return "中级 - 定期使用 | Intermediate";
+            return "初级 - 偶尔使用 | Beginner";
+        }
+
+        function updateLoadingProgress(progress, text) {
+            const progressBar = document.getElementById('loading-progress-bar');
+            const loadingText = document.querySelector('.loading-text');
+            if (progressBar) progressBar.style.width = `${progress}%`;
+            if (loadingText) loadingText.textContent = text;
+        }
+
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.classList.add('hidden');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 800);
+            }
+        }
 
         let scene, camera, renderer, controls, labelRenderer, particleSystem, clock;
         let starMeshes = [], constellationGroups = {}, allConstellationsContainer;
@@ -824,6 +835,7 @@
 
             const logoUrl = toolLogos[tool.id];
             const fallbackEmoji = tool.icon;
+            const isMultiConstellation = multiConstellationTools.has(tool.id);
 
             const labelDiv = document.createElement('div');
             labelDiv.innerHTML = `
@@ -843,10 +855,12 @@
                     display: flex;
                     align-items: center;
                     gap: 6px;
+                    position: relative;
                 ">
                     ${logoUrl ? `<img src="${logoUrl}" style="width: 16px; height: 16px; filter: brightness(0) invert(1);" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />` : ''}
                     <span style="${logoUrl ? 'display:none;' : ''}">${fallbackEmoji}</span>
                     ${tool.name}
+                    ${isMultiConstellation ? '<span class="multi-constellation-badge">连接节点</span>' : ''}
                 </div>
             `;
             
@@ -1159,6 +1173,8 @@
         function showToolDetail(tool) {
             const panel = document.getElementById('tool-detail-panel');
             const logoUrl = toolLogos[tool.id];
+            const isMultiConstellation = multiConstellationTools.has(tool.id);
+            const belongsToConstellations = toolConstellations[tool.id] || [];
             
             panel.innerHTML = `
                 <button class="close-panel-btn" onclick="hideToolDetail()">×</button>
@@ -1170,6 +1186,7 @@
                     <div class="detail-info">
                         <h3>${tool.name}</h3>
                         <span class="detail-category">${tool.category}</span>
+                        ${isMultiConstellation ? `<div style="margin-top: 0.5rem; font-size: 0.85rem; color: #9370db;">连接节点：${belongsToConstellations.join(', ')}</div>` : ''}
                     </div>
                 </div>
                 
