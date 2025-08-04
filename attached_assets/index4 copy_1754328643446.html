@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 工具星云 - 沉浸式探索</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #030418;
+            --secondary-bg: #0a0a24;
+            --glass-bg: rgba(10, 10, 36, 0.85);
+            --primary-text: #e0e0ff;
+            --border-color: rgba(147, 112, 219, 0.3);
+            --font-main: 'Exo 2', 'Noto Sans SC', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* --- 3D Canvas & UI --- */
+        #ai-nebula-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            cursor: grab;
+        }
+        #ai-nebula-container:active { cursor: grabbing; }
+
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .title-container { text-align: center; }
+        .main-title { font-size: 2.5rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px rgba(175, 143, 255, 0.8), 0 0 25px rgba(175, 143, 255, 0.5); }
+        .subtitle { font-size: 1rem; color: #d1d5db; margin-top: 0.5rem; }
+
+        .instruction-text {
+            position: absolute;
+            bottom: 10%;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            transition: opacity 1s ease-in-out;
+        }
+        .instruction-text.fade-out { opacity: 0; }
+
+        /* --- Constellation Navigation --- */
+        .nav-buttons {
+            pointer-events: all;
+            display: flex;
+            gap: 1rem;
+            background: rgba(0,0,0,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            backdrop-filter: blur(5px);
+        }
+        .nav-button {
+            background: none;
+            border: 1px solid transparent;
+            color: var(--primary-text);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: var(--font-main);
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-button:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .nav-button.global {
+            border-color: rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: skewX(-30deg);
+            transition: left 0.6s ease;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        /* --- Tool Detail Panel --- */
+        #tool-detail-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 90%;
+            max-width: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #tool-detail-panel.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: all; }
+        .close-panel-btn { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; color: var(--primary-text); cursor: pointer; background: none; border: none; }
+        .detail-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .detail-icon { font-size: 2.5rem; }
+        .detail-name { font-size: 1.8rem; font-weight: 600; }
+        .detail-category { font-size: 0.9rem; color: #aaa; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 5px; display: inline-block; }
+        .detail-description { font-size: 1rem; line-height: 1.6; margin-bottom: 20px; }
+        .detail-proficiency { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .proficiency-label { font-size: 0.9rem; color: #ccc; }
+        .proficiency-ring { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; font-size: 1rem; font-weight: bold; }
+        .proficiency-ring::before { content: ''; position: absolute; width: 40px; height: 40px; background: var(--secondary-bg); border-radius: 50%; }
+        .proficiency-ring span { position: relative; }
+        .detail-features { display: flex; flex-wrap: wrap; gap: 8px; }
+        .feature-tag { padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div id="ai-nebula-container"></div>
+
+    <div class="ui-overlay">
+        <div class="title-container">
+            <h1 class="main-title">AI 工具星云</h1>
+            <p class="subtitle">一个交互式的AI工具知识图谱</p>
+        </div>
+        
+        <div class="nav-buttons" id="nav-buttons-container"></div>
+
+        <div class="instruction-text" id="instruction-text">拖拽可旋转，点击星辰可探索</div>
+    </div>
+
+    <div id="tool-detail-panel"></div>
+
+    <script>
+    const aiTools = [ { id: 'claude-code', name: 'Claude Code', category: '终端AI工具', description: '主力AI工具，终端命令行AI助手，深度集成开发工作流', usage: '日常编程、系统管理、问题解决', proficiency: 95, icon: '🤖', features: ['命令行集成', '代码生成', '系统诊断', '工作流优化'] }, { id: 'claude-web', name: 'Claude (网页版)', category: '对话AI', description: '最早接触的AI工具，用于学习、研究和内容创作', usage: '学术研究、文档写作、思维整理', proficiency: 90, icon: '💬', features: ['长文本处理', '逻辑推理', '创意写作', '学术讨论'] }, { id: 'cursor', name: 'Cursor AI IDE', category: '开发工具', description: 'AI驱动的代码编辑器，提升编程效率', usage: '代码编写、重构、调试', proficiency: 85, icon: '⚡', features: ['智能补全', '代码解释', '自动重构', '错误修复'] }, { id: 'deepseek-api', name: 'DeepSeek API', category: 'API服务', description: '集成到项目中的AI能力，用于智能化系统开发', usage: '系统集成、数据处理、智能分析', proficiency: 80, icon: '🔗', features: ['API集成', '批量处理', '智能识别', '自动化流程'] }, { id: 'gemini', name: 'Gemini', category: '多模态AI', description: '用于多媒体内容处理和创作', usage: '图像分析、内容生成、多模态交互', proficiency: 75, icon: '🌟', features: ['图像理解', '多模态输入', '创意生成', '内容优化'] }, { id: 'bolt', name: 'Bolt', category: '开发工具', description: 'AI驱动的快速应用开发平台，能够快速构建全栈应用', usage: 'MVP快速发布、内部工具开发、AI应用原型', proficiency: 70, icon: '⚡', features: ['快速原型设计', '全栈应用开发', 'AI/ML项目实验', '编程教育学习'] }, { id: 'n8n', name: 'n8n', category: '自动化工具', description: '混合无代码/低代码工作流自动化平台，拥有400多个原生集成', usage: '潜在客户生成、客户支持自动化、内容管理', proficiency: 65, icon: '🔄', features: ['400+原生集成', '内置AI节点', '自定义代码支持', '自托管或云端'] }, { id: 'gamma', name: 'Gamma', category: '设计工具', description: 'AI演示文稿、文档和网页生成器，快速创建设计精美的内容', usage: '销售演示、产品概述、教育材料', proficiency: 75, icon: '🎨', features: ['文本提示生成', '专业模板库', '嵌入丰富媒体', '响应式设计'] }, { id: 'wispr-flow', name: 'Wispr Flow', category: '效率工具', description: '语音驱动的听写工具，具备上下文感知能力，比打字快4倍', usage: '撰写邮件报告、编程听写、快速捕捉想法', proficiency: 60, icon: '🎤', features: ['跨应用语音听写', '上下文感知', '实时自动编辑', '支持100+语言'] }, { id: 'notebookllm', name: 'NotebookLM', category: '知识管理', description: 'Google的AI驱动笔记和研究助手，能够理解和分析文档', usage: '文档分析、研究整理、知识提取', proficiency: 70, icon: '📖', features: ['文档理解', '智能摘要', '问答系统', '知识图谱'] } ];
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        let scene, camera, renderer, controls, labelRenderer, particleSystem, clock;
+        let starMeshes = [], constellationGroups = {}, allConstellationsContainer;
+        const nebulaContainer = document.getElementById('ai-nebula-container');
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let isFocused = false;
+        let cameraTargetPos = new THREE.Vector3();
+        let controlsTargetPos = new THREE.Vector3();
+        let lastCameraPos = new THREE.Vector3();
+        let lastControlsTarget = new THREE.Vector3();
+
+        const constellations = [
+            { name: "开发星座", color: 0x60a5fa, tools: ['claude-code', 'cursor', 'bolt', 'deepseek-api'] },
+            { name: "内容星座", color: 0xf472b6, tools: ['claude-web', 'gemini', 'gamma', 'wispr-flow'] },
+            { name: "效率星座", color: 0xfacc15, tools: ['n8n', 'notebookllm'] }
+        ];
+        const constellationColors = constellations.reduce((acc, c) => { c.tools.forEach(t => { acc[t] = c.color; }); return acc; }, {});
+
+        function init() {
+            clock = new THREE.Clock();
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+
+            // **FIXED**: Correct renderer initialization
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            nebulaContainer.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            nebulaContainer.appendChild(labelRenderer.domElement);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 5;
+            controls.maxDistance = 50;
+            controls.enablePan = false;
+
+            createParticles();
+            createConstellations();
+            setupNavigation();
+
+            window.addEventListener('resize', onWindowResize);
+            nebulaContainer.addEventListener('click', onStarClick);
+            
+            setTimeout(() => {
+                document.getElementById('instruction-text').classList.add('fade-out');
+            }, 4000);
+
+            cameraTargetPos.set(0, 5, 25);
+            controlsTargetPos.set(0, 0, 0);
+
+            animate();
+        }
+
+        function createParticles() {
+            const particlesCount = 8000;
+            const positions = new Float32Array(particlesCount * 3);
+            const colors = new Float32Array(particlesCount * 3);
+            const color = new THREE.Color();
+
+            for (let i = 0; i < particlesCount; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 120;
+                positions[i3 + 1] = (Math.random() - 0.5) * 120;
+                positions[i3 + 2] = (Math.random() - 0.5) * 120;
+                
+                color.setHSL(0.5 + Math.random() * 0.2, 0.7, 0.5 + Math.random() * 0.2);
+                colors[i3] = color.r;
+                colors[i3 + 1] = color.g;
+                colors[i3 + 2] = color.b;
+            }
+            
+            const particlesGeometry = new THREE.BufferGeometry();
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            const material = new THREE.PointsMaterial({
+                size: 0.1,
+                sizeAttenuation: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+                vertexColors: true
+            });
+            particleSystem = new THREE.Points(particlesGeometry, material);
+            scene.add(particleSystem);
+        }
+
+        function createConstellations() {
+            const toolMap = new Map(aiTools.map(tool => [tool.id, tool]));
+            allConstellationsContainer = new THREE.Group();
+
+            constellations.forEach((constellation, cIndex) => {
+                const constellationGroup = new THREE.Group();
+                const starPositions = [];
+
+                constellation.tools.forEach((toolId, tIndex) => {
+                    const tool = toolMap.get(toolId);
+                    const star = createStar(tool, constellation.color);
+                    const angle = (tIndex / constellation.tools.length) * Math.PI * 2;
+                    const radius = 4 + Math.random() * 2;
+                    star.position.set(Math.cos(angle) * radius, (Math.random() - 0.5) * 3, Math.sin(angle) * radius);
+                    constellationGroup.add(star);
+                    starMeshes.push(star);
+                    starPositions.push(star.position);
+                });
+
+                createConnections(constellationGroup, starPositions, constellation.color);
+                
+                const constellationRadius = 12;
+                const angleForGroup = (cIndex / constellations.length) * Math.PI * 2;
+                constellationGroup.position.set(
+                    Math.cos(angleForGroup) * constellationRadius,
+                    (cIndex - constellations.length / 2) * 4,
+                    Math.sin(angleForGroup) * constellationRadius
+                );
+                constellationGroup.userData = { driftAngle: Math.random() * Math.PI * 2 };
+                allConstellationsContainer.add(constellationGroup);
+                constellationGroups[constellation.name] = constellationGroup;
+            });
+            scene.add(allConstellationsContainer);
+        }
+
+        function createStar(tool, color) {
+            const starMaterial = new THREE.SpriteMaterial({
+                map: new THREE.TextureLoader().load('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1MCUiIGN5PSI1MCUiIHI9IjUwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iNTAlIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg=='),
+                color: color,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                sizeAttenuation: true
+            });
+            const star = new THREE.Sprite(starMaterial);
+            star.scale.set(2.5, 2.5, 1);
+            star.userData = { ...tool, pulseOffset: Math.random() * Math.PI, baseOpacity: 1 };
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'star-label';
+            labelDiv.textContent = tool.name;
+            labelDiv.style.color = new THREE.Color(color).getStyle();
+            const label = new CSS2DObject(labelDiv);
+            star.add(label);
+            return star;
+        }
+
+        function createConnections(group, positions, color) {
+            const lineMaterial = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending });
+            for (let i = 0; i < positions.length; i++) {
+                for (let j = i + 1; j < positions.length; j++) {
+                    if (Math.random() > 0.5) {
+                        const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([positions[i], positions[j]]), lineMaterial);
+                        group.add(line);
+                    }
+                }
+            }
+        }
+
+        function setupNavigation() {
+            const container = document.getElementById('nav-buttons-container');
+            
+            // 添加全局视角按钮
+            const globalBtn = document.createElement('button');
+            globalBtn.className = 'nav-button global';
+            globalBtn.textContent = '全局视角';
+            globalBtn.addEventListener('click', () => {
+                if (isFocused) clearFocus();
+                cameraTargetPos.set(0, 5, 25);
+                controlsTargetPos.set(0, 0, 0);
+            });
+            container.appendChild(globalBtn);
+            
+            constellations.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-button';
+                btn.textContent = c.name;
+                btn.style.borderColor = new THREE.Color(c.color).getStyle();
+                btn.addEventListener('click', () => {
+                    if (isFocused) clearFocus();
+                    const group = constellationGroups[c.name];
+                    const targetPos = new THREE.Vector3();
+                    group.getWorldPosition(targetPos);
+                    cameraTargetPos.copy(targetPos.clone().add(new THREE.Vector3(0, 2, 10)));
+                    controlsTargetPos.copy(targetPos);
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onStarClick(event) {
+            if (isFocused) return;
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(starMeshes);
+
+            if (intersects.length > 0) {
+                setFocus(intersects[0].object);
+            }
+        }
+
+        function setFocus(targetStar) {
+            isFocused = true;
+            controls.enabled = false;
+            lastCameraPos.copy(camera.position);
+            lastControlsTarget.copy(controls.target);
+
+            const targetPos = new THREE.Vector3();
+            targetStar.getWorldPosition(targetPos);
+            cameraTargetPos.copy(targetPos.clone().add(new THREE.Vector3(0, 1, 5)));
+            controlsTargetPos.copy(targetPos);
+
+            scene.traverse(child => {
+                if (child.material && child !== particleSystem) {
+                    if (child.parent === targetStar.parent || child === targetStar) {
+                        child.material.opacity = child.userData.baseOpacity || 1;
+                    } else {
+                        child.material.opacity = (child.userData.baseOpacity || 1) * 0.1;
+                    }
+                }
+                if (child.isCSS2DObject) {
+                    child.element.style.opacity = child.parent === targetStar ? 1 : 0.1;
+                }
+            });
+            showDetailPanel(targetStar.userData);
+        }
+
+        function clearFocus() {
+            isFocused = false;
+            controls.enabled = true;
+            cameraTargetPos.copy(lastCameraPos);
+            controlsTargetPos.copy(lastControlsTarget);
+
+            scene.traverse(child => {
+                if (child.material && child !== particleSystem) {
+                    child.material.opacity = child.userData.baseOpacity || 1;
+                }
+                if (child.isCSS2DObject) {
+                    child.element.style.opacity = 1;
+                }
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            particleSystem.rotation.y = time * 0.02;
+            allConstellationsContainer.rotation.y += delta * 0.01;
+
+            starMeshes.forEach(star => {
+                const pulse = Math.sin(time * 2 + star.userData.pulseOffset) * 0.1 + 0.95;
+                star.scale.set(2.5 * pulse, 2.5 * pulse, 1);
+            });
+            
+            camera.position.lerp(cameraTargetPos, delta * 2);
+            controls.target.lerp(controlsTargetPos, delta * 2);
+
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        const detailPanel = document.getElementById('tool-detail-panel');
+        function showDetailPanel(tool) {
+            const color = new THREE.Color(constellationColors[tool.id]).getStyle();
+            detailPanel.innerHTML = `
+                <button class="close-panel-btn">&times;</button>
+                <div class="detail-header">
+                    <div class="detail-icon">${tool.icon}</div>
+                    <div>
+                        <h3 class="detail-name" style="color: ${color}; text-shadow: 0 0 8px ${color};">${tool.name}</h3>
+                        <span class="detail-category">${tool.category}</span>
+                    </div>
+                </div>
+                <p class="detail-description">${tool.description}</p>
+                <div class="detail-proficiency">
+                    <div class="proficiency-ring" style="background: conic-gradient(${color} ${tool.proficiency}%, var(--glass-bg) 0);">
+                        <span>${tool.proficiency}%</span>
+                    </div>
+                    <div class="proficiency-label">${tool.usage}</div>
+                </div>
+                <div class="detail-features">
+                    ${tool.features.map(f => `<span class="feature-tag" style="background-color: ${color}20; color: ${color}; border: 1px solid ${color}50;">${f}</span>`).join('')}
+                </div>
+            `;
+            detailPanel.classList.add('visible');
+            detailPanel.querySelector('.close-panel-btn').addEventListener('click', () => {
+                detailPanel.classList.remove('visible');
+                clearFocus();
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
