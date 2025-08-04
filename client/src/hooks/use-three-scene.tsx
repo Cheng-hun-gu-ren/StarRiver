@@ -26,6 +26,7 @@ export function useThreeScene({
     starMeshes: THREE.Group[];
     constellationGroups: Record<string, THREE.Group>;
     allConstellationsContainer: THREE.Group;
+    interConnections: THREE.Group;
     raycaster: THREE.Raycaster;
     mouse: THREE.Vector2;
     clock: THREE.Clock;
@@ -83,7 +84,7 @@ export function useThreeScene({
       const particleSystem = await createParticles(scene);
 
       onLoadingProgress(50, "构建星座...");
-      const { starMeshes, constellationGroups, allConstellationsContainer } = 
+      const { starMeshes, constellationGroups, allConstellationsContainer, interConnections } = 
         await createConstellations(scene);
 
       const raycaster = new THREE.Raycaster();
@@ -100,6 +101,7 @@ export function useThreeScene({
         starMeshes,
         constellationGroups,
         allConstellationsContainer,
+        interConnections,
         raycaster,
         mouse,
         clock
@@ -316,7 +318,7 @@ export function useThreeScene({
     
     scene.add(interConnections);
     scene.add(allConstellationsContainer);
-    return { starMeshes, constellationGroups, allConstellationsContainer };
+    return { starMeshes, constellationGroups, allConstellationsContainer, interConnections };
   };
 
   const createStar = (tool: AITool, constellationColor: number): THREE.Group => {
@@ -570,6 +572,11 @@ export function useThreeScene({
       group.visible = true;
       group.userData.isVisible = true;
     });
+    
+    // Show inter-constellation connections in global view
+    if (sceneRef.current.interConnections) {
+      sceneRef.current.interConnections.visible = true;
+    }
 
     animateCamera(
       new THREE.Vector3(0, 5, 30), 
@@ -587,6 +594,11 @@ export function useThreeScene({
       group.visible = (name === constellationName);
       group.userData.isVisible = (name === constellationName);
     });
+    
+    // Hide inter-constellation connections when focusing on a single constellation
+    if (sceneRef.current.interConnections) {
+      sceneRef.current.interConnections.visible = false;
+    }
     
     const box = new THREE.Box3().setFromObject(targetGroup);
     const center = box.getCenter(new THREE.Vector3());
