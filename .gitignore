@@ -4,3 +4,8 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# 中转文件夹 - 用于临时文件存储，不纳入版本控制
+中转文件夹/
+staging/
+temp/
