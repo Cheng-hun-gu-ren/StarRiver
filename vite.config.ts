@@ -27,7 +27,7 @@ export default defineConfig({
     },
   },
   root: path.resolve(__dirname, "client"),
-  base: process.env.NODE_ENV === "production" ? "/星云效果/" : "/",
+  base: process.env.NODE_ENV === "production" ? "/StarRiver/" : "/",
   build: {
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,
