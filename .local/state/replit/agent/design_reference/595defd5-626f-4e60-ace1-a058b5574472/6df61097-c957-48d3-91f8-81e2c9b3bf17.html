@@ -1,0 +1,1466 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 工具星云 - 沉浸式探索 | AI Tools Nebula</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    'exo': ['Exo 2', 'Noto Sans SC', 'sans-serif'],
+                    'noto': ['Noto Sans SC', 'sans-serif']
+                },
+                colors: {
+                    'cosmic': {
+                        50: '#f8fafc',
+                        100: '#e0e0ff',
+                        200: '#c7c7ff',
+                        300: '#9370db',
+                        400: '#af8fff',
+                        500: '#8b5cf6',
+                        600: '#7c3aed',
+                        700: '#6d28d9',
+                        800: '#0a0a24',
+                        900: '#030418'
+                    }
+                },
+                animation: {
+                    'float': 'float 6s ease-in-out infinite',
+                    'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    'glow': 'glow 2s ease-in-out infinite alternate'
+                },
+                keyframes: {
+                    float: {
+                        '0%, 100%': { transform: 'translateY(0px)' },
+                        '50%': { transform: 'translateY(-10px)' }
+                    },
+                    glow: {
+                        '0%': { filter: 'brightness(1) saturate(1)' },
+                        '100%': { filter: 'brightness(1.2) saturate(1.3)' }
+                    }
+                },
+                backdropBlur: {
+                    xs: '2px'
+                }
+            }
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --primary-bg: #030418;
+            --secondary-bg: #0a0a24;
+            --glass-bg: rgba(10, 10, 36, 0.85);
+            --primary-text: #e0e0ff;
+            --border-color: rgba(147, 112, 219, 0.3);
+            --glow-color: rgba(175, 143, 255, 0.8);
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            color: var(--primary-text);
+            font-family: 'Exo 2', 'Noto Sans SC', sans-serif;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-bg);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(147, 112, 219, 0.2);
+            border-top: 3px solid var(--glow-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--primary-text);
+            margin-bottom: 10px;
+        }
+
+        .loading-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(147, 112, 219, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--glow-color), #60a5fa);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        /* 3D Canvas Container */
+        #ai-nebula-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        #ai-nebula-container:active { 
+            cursor: grabbing; 
+        }
+
+        #ai-nebula-container canvas {
+            display: block;
+            outline: none;
+        }
+
+        /* UI Overlay System */
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: clamp(1rem, 4vw, 2rem);
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .main-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 
+                0 0 15px var(--glow-color),
+                0 0 25px rgba(175, 143, 255, 0.5),
+                0 0 35px rgba(175, 143, 255, 0.3);
+            margin-bottom: 0.5rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: #d1d5db;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* Navigation System */
+        .navigation-container {
+            pointer-events: all;
+            position: relative;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.75rem;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-button {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--primary-text);
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+        }
+
+        .nav-button.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #ffffff;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: skewX(-30deg);
+            transition: left 0.6s ease;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        /* Instructions */
+        .instruction-text {
+            position: absolute;
+            bottom: 8%;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+            text-align: center;
+            transition: opacity 1.5s ease-in-out;
+            pointer-events: none;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .instruction-text.fade-out { 
+            opacity: 0; 
+        }
+
+        /* Tool Detail Panel */
+        .tool-detail-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%;
+            max-width: 550px;
+            max-height: 80vh;
+            background: rgba(10, 10, 36, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(147, 112, 219, 0.4);
+            border-radius: 20px;
+            padding: 2rem;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 50px rgba(147, 112, 219, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+
+        .tool-detail-panel.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: all;
+        }
+
+        .close-panel-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--primary-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .close-panel-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            transform: rotate(90deg);
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-icon {
+            font-size: 3rem;
+            filter: drop-shadow(0 0 10px var(--glow-color));
+        }
+
+        .detail-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .detail-category {
+            display: inline-block;
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .detail-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: #d1d5db;
+        }
+
+        .detail-stats {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .proficiency-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            position: relative;
+            background: conic-gradient(from 0deg, #60a5fa, #8b5cf6, #f472b6, #60a5fa);
+            padding: 3px;
+        }
+
+        .proficiency-ring::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: var(--secondary-bg);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .proficiency-ring span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .proficiency-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .proficiency-label {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .proficiency-description {
+            font-size: 0.85rem;
+            color: #d1d5db;
+            line-height: 1.4;
+        }
+
+        .detail-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .feature-tag {
+            padding: 0.4rem 0.8rem;
+            background: rgba(147, 112, 219, 0.2);
+            color: #af8fff;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .feature-tag:hover {
+            background: rgba(147, 112, 219, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Performance Indicators */
+        .fps-monitor {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff00;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            z-index: 50;
+            display: none; /* Hidden by default, can be toggled for debugging */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .nav-button {
+                width: 100%;
+                text-align: center;
+            }
+
+            .tool-detail-panel {
+                width: 95%;
+                padding: 1.5rem;
+                max-height: 85vh;
+            }
+
+            .detail-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            .detail-stats {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ui-overlay {
+                padding: 1rem;
+            }
+
+            .tool-detail-panel {
+                padding: 1rem;
+            }
+
+            .detail-header .detail-icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            .loading-spinner,
+            .main-title,
+            .nav-button::before,
+            .loading-progress-bar {
+                animation: none;
+            }
+
+            .nav-button:hover,
+            .close-panel-btn:hover,
+            .feature-tag:hover {
+                transform: none;
+            }
+        }
+
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+            :root {
+                --border-color: rgba(255, 255, 255, 0.8);
+                --primary-text: #ffffff;
+            }
+
+            .nav-button {
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+
+            .tool-detail-panel {
+                border-color: rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .ui-overlay,
+            #ai-nebula-container {
+                display: none;
+            }
+
+            body::after {
+                content: "AI 工具星云 - 这是一个交互式3D可视化页面，请在浏览器中查看完整体验。";
+                display: block;
+                padding: 2rem;
+                text-align: center;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在初始化星云 | Initializing Nebula</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="loading-progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- FPS Monitor (for debugging) -->
+    <div class="fps-monitor" id="fps-monitor">FPS: --</div>
+
+    <!-- 3D Canvas Container -->
+    <div id="ai-nebula-container" role="application" aria-label="3D AI Tools Constellation Visualization"></div>
+
+    <!-- UI Overlay -->
+    <div class="ui-overlay">
+        <header class="header-section">
+            <h1 class="main-title">AI 工具星云</h1>
+            <p class="subtitle">交互式AI工具知识图谱 | Interactive AI Tools Knowledge Graph</p>
+        </header>
+        
+        <nav class="navigation-container" role="navigation" aria-label="Constellation Navigation">
+            <div class="nav-buttons" id="nav-buttons-container"></div>
+        </nav>
+
+        <div class="instruction-text" id="instruction-text" role="status" aria-live="polite">
+            拖拽可旋转，点击星辰可探索 | Drag to rotate, click stars to explore
+        </div>
+    </div>
+
+    <!-- Tool Detail Panel -->
+    <div class="tool-detail-panel" id="tool-detail-panel" role="dialog" aria-modal="true" aria-labelledby="tool-title"></div>
+
+    <script>
+    // Enhanced AI Tools Data with more comprehensive information
+    const aiTools = [
+        {
+            id: 'claude-code',
+            name: 'Claude Code',
+            category: '终端AI工具',
+            description: '主力AI工具，终端命令行AI助手，深度集成开发工作流程。提供实时代码建议、系统诊断和工作流优化。',
+            usage: '日常编程、系统管理、问题解决',
+            proficiency: 95,
+            icon: '🤖',
+            features: ['命令行集成', '代码生成', '系统诊断', '工作流优化', '实时建议']
+        },
+        {
+            id: 'claude-web',
+            name: 'Claude (网页版)',
+            category: '对话AI',
+            description: '最早接触的AI工具，用于学习、研究和内容创作。强大的自然语言处理能力，支持复杂任务推理。',
+            usage: '研究分析、写作辅助、学习讨论',
+            proficiency: 90,
+            icon: '💬',
+            features: ['自然对话', '研究分析', '创作辅助', '多语言支持', '推理能力']
+        },
+        {
+            id: 'cursor',
+            name: 'Cursor',
+            category: '开发AI工具',
+            description: '革命性的AI编程编辑器，将AI深度集成到开发环境中，提供智能代码补全和重构建议。',
+            usage: '代码编写、重构、调试',
+            proficiency: 88,
+            icon: '⌨️',
+            features: ['智能补全', 'AI重构', '代码解释', '快速修复', '上下文感知']
+        },
+        {
+            id: 'bolt',
+            name: 'Bolt',
+            category: '开发AI工具',
+            description: '快速原型和全栈开发AI助手，能够从想法快速生成可运行的应用程序。',
+            usage: '快速原型、全栈开发、想法验证',
+            proficiency: 75,
+            icon: '⚡',
+            features: ['快速原型', '全栈生成', '即时预览', '部署集成', '模板库']
+        },
+        {
+            id: 'deepseek-api',
+            name: 'DeepSeek API',
+            category: '开发AI工具',
+            description: '高性能的AI API服务，提供强大的推理能力和代码生成功能，成本效益极高。',
+            usage: 'API集成、自动化任务、批量处理',
+            proficiency: 82,
+            icon: '🔌',
+            features: ['高性能API', '代码生成', '批量处理', '成本效益', '易集成']
+        },
+        {
+            id: 'gemini',
+            name: 'Gemini',
+            category: '多模态AI',
+            description: 'Google的多模态AI模型，在图像理解、视频分析和复杂推理方面表现卓越。',
+            usage: '多模态分析、图像处理、视频理解',
+            proficiency: 78,
+            icon: '💎',
+            features: ['多模态处理', '图像分析', '视频理解', '复杂推理', '大上下文']
+        },
+        {
+            id: 'gamma',
+            name: 'Gamma',
+            category: '内容创作',
+            description: 'AI驱动的演示文稿和文档创建工具，能够快速生成专业级的视觉内容。',
+            usage: '演示文稿、文档设计、视觉内容',
+            proficiency: 70,
+            icon: '📊',
+            features: ['自动设计', '模板生成', '内容优化', '协作功能', '导出选项']
+        },
+        {
+            id: 'wispr-flow',
+            name: 'Wispr Flow',
+            category: '语音AI工具',
+            description: '先进的语音转文字AI工具，支持实时转录和多语言识别，准确率极高。',
+            usage: '语音转录、会议记录、内容创作',
+            proficiency: 85,
+            icon: '🎙️',
+            features: ['实时转录', '多语言支持', '高准确率', '标点智能', '格式化输出']
+        },
+        {
+            id: 'n8n',
+            name: 'n8n',
+            category: '自动化工具',
+            description: '开源的工作流自动化平台，可以连接各种服务和AI工具，创建复杂的自动化流程。',
+            usage: '工作流自动化、数据集成、任务编排',
+            proficiency: 80,
+            icon: '🔄',
+            features: ['可视化编排', '丰富集成', '自定义节点', '开源免费', '企业级']
+        },
+        {
+            id: 'notebookllm',
+            name: 'NotebookLM',
+            category: '研究AI工具',
+            description: 'Google的AI研究助手，能够基于用户文档创建个性化的AI研究伙伴。',
+            usage: '文档分析、研究辅助、知识提取',
+            proficiency: 72,
+            icon: '📚',
+            features: ['文档理解', '知识提取', '个性化AI', '研究助手', '引用追踪']
+        }
+    ];
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        // Global variables
+        let scene, camera, renderer, controls, labelRenderer, particleSystem, clock;
+        let starMeshes = [], constellationGroups = {}, allConstellationsContainer;
+        let raycaster, mouse, isFocused = false;
+        let cameraTargetPos, controlsTargetPos, lastCameraPos, lastControlsTarget;
+        let loadingProgress = 0;
+        let fpsMonitor, frameCount = 0, lastTime = 0;
+        
+        // Performance tracking
+        const performanceConfig = {
+            targetFPS: 60,
+            particleCount: Math.min(8000, window.innerWidth * 2), // Adaptive particle count
+            enableAdaptiveQuality: true,
+            qualityLevel: 1.0
+        };
+
+        // Constellation definitions with enhanced metadata
+        const constellations = [
+            { 
+                name: "开发星座", 
+                nameEn: "Development",
+                color: 0x60a5fa, 
+                tools: ['claude-code', 'cursor', 'bolt', 'deepseek-api'],
+                description: "编程开发相关的AI工具集合"
+            },
+            { 
+                name: "内容星座", 
+                nameEn: "Content",
+                color: 0xf472b6, 
+                tools: ['claude-web', 'gemini', 'gamma', 'wispr-flow'],
+                description: "内容创作和多媒体处理工具"
+            },
+            { 
+                name: "效率星座", 
+                nameEn: "Productivity",
+                color: 0xfacc15, 
+                tools: ['n8n', 'notebookllm'],
+                description: "提升工作效率的自动化工具"
+            }
+        ];
+
+        // Enhanced initialization with loading progress
+        async function init() {
+            try {
+                updateLoadingProgress(10, "初始化3D场景...");
+                await initializeScene();
+                
+                updateLoadingProgress(30, "创建粒子系统...");
+                await createEnhancedParticles();
+                
+                updateLoadingProgress(50, "构建星座...");
+                await createConstellations();
+                
+                updateLoadingProgress(70, "设置交互控制...");
+                await setupControls();
+                
+                updateLoadingProgress(85, "初始化导航...");
+                await setupNavigation();
+                
+                updateLoadingProgress(95, "完成加载...");
+                await setupEventListeners();
+                
+                updateLoadingProgress(100, "启动星云...");
+                hideLoadingScreen();
+                startAnimation();
+                
+                // Initialize FPS monitor
+                initFPSMonitor();
+                
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                handleInitializationError(error);
+            }
+        }
+
+        function updateLoadingProgress(progress, text) {
+            return new Promise(resolve => {
+                loadingProgress = progress;
+                document.getElementById('loading-progress-bar').style.width = `${progress}%`;
+                document.querySelector('.loading-text').textContent = text;
+                setTimeout(resolve, 50); // Small delay for visual feedback
+            });
+        }
+
+        function hideLoadingScreen() {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+            }, 500);
+        }
+
+        function handleInitializationError(error) {
+            document.querySelector('.loading-text').textContent = `加载失败: ${error.message}`;
+            document.querySelector('.loading-spinner').style.display = 'none';
+        }
+
+        async function initializeScene() {
+            clock = new THREE.Clock();
+            scene = new THREE.Scene();
+            
+            // Enhanced camera setup
+            camera = new THREE.PerspectiveCamera(
+                75, 
+                window.innerWidth / window.innerHeight, 
+                0.1, 
+                1000
+            );
+            camera.position.set(0, 5, 30);
+
+            // Enhanced renderer with better quality settings
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('webgl2') || canvas.getContext('webgl');
+            
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: canvas,
+                context: context,
+                antialias: true, 
+                alpha: true,
+                powerPreference: "high-performance"
+            });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            
+            document.getElementById('ai-nebula-container').appendChild(renderer.domElement);
+
+            // Enhanced CSS2D renderer
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            labelRenderer.domElement.style.userSelect = 'none';
+            document.getElementById('ai-nebula-container').appendChild(labelRenderer.domElement);
+
+            // Initialize interaction variables
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            cameraTargetPos = new THREE.Vector3(0, 5, 25);
+            controlsTargetPos = new THREE.Vector3(0, 0, 0);
+            lastCameraPos = new THREE.Vector3();
+            lastControlsTarget = new THREE.Vector3();
+        }
+
+        async function setupControls() {
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 8;
+            controls.maxDistance = 60;
+            controls.enablePan = false;
+            controls.rotateSpeed = 0.5;
+            controls.zoomSpeed = 0.8;
+            
+            // Enhanced touch controls for mobile
+            controls.touches = {
+                ONE: THREE.TOUCH.ROTATE,
+                TWO: THREE.TOUCH.DOLLY_PAN
+            };
+        }
+
+        async function createEnhancedParticles() {
+            const particlesCount = performanceConfig.particleCount;
+            const positions = new Float32Array(particlesCount * 3);
+            const colors = new Float32Array(particlesCount * 3);
+            const sizes = new Float32Array(particlesCount);
+            const color = new THREE.Color();
+
+            // Create more varied and beautiful particle distribution
+            for (let i = 0; i < particlesCount; i++) {
+                const i3 = i * 3;
+                
+                // Spherical distribution with clustering
+                const radius = 40 + Math.random() * 80;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                
+                positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i3 + 2] = radius * Math.cos(phi);
+                
+                // Enhanced color variation
+                const hue = 0.5 + Math.random() * 0.3;
+                const saturation = 0.4 + Math.random() * 0.6;
+                const lightness = 0.3 + Math.random() * 0.4;
+                
+                color.setHSL(hue, saturation, lightness);
+                colors[i3] = color.r;
+                colors[i3 + 1] = color.g;
+                colors[i3 + 2] = color.b;
+                
+                // Varied particle sizes
+                sizes[i] = 0.5 + Math.random() * 1.5;
+            }
+            
+            const particlesGeometry = new THREE.BufferGeometry();
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            
+            // Enhanced particle material with shader
+            const material = new THREE.PointsMaterial({
+                size: 0.8,
+                sizeAttenuation: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            particleSystem = new THREE.Points(particlesGeometry, material);
+            scene.add(particleSystem);
+        }
+
+        async function createConstellations() {
+            const toolMap = new Map(aiTools.map(tool => [tool.id, tool]));
+            allConstellationsContainer = new THREE.Group();
+
+            constellations.forEach((constellation, cIndex) => {
+                const constellationGroup = new THREE.Group();
+                constellationGroup.userData = { 
+                    constellation: constellation,
+                    isVisible: true
+                };
+                
+                const starPositions = [];
+
+                // Create stars with enhanced visuals
+                constellation.tools.forEach((toolId, tIndex) => {
+                    const tool = toolMap.get(toolId);
+                    if (tool) {
+                        const star = createEnhancedStar(tool, constellation.color);
+                        
+                        // Improved positioning algorithm
+                        const angle = (tIndex / constellation.tools.length) * Math.PI * 2;
+                        const radius = 5 + Math.random() * 3;
+                        const height = (Math.random() - 0.5) * 4;
+                        
+                        star.position.set(
+                            Math.cos(angle) * radius,
+                            height,
+                            Math.sin(angle) * radius
+                        );
+                        
+                        constellationGroup.add(star);
+                        starMeshes.push(star);
+                        starPositions.push(star.position);
+                    }
+                });
+
+                // Enhanced constellation connections
+                createEnhancedConnections(constellationGroup, starPositions, constellation.color);
+                
+                // Position constellations in a more dynamic arrangement
+                const constellationRadius = 15;
+                const constellationAngle = (cIndex / constellations.length) * Math.PI * 2;
+                const constellationHeight = (Math.random() - 0.5) * 10;
+                
+                constellationGroup.position.set(
+                    Math.cos(constellationAngle) * constellationRadius,
+                    constellationHeight,
+                    Math.sin(constellationAngle) * constellationRadius
+                );
+
+                constellationGroups[constellation.name] = constellationGroup;
+                allConstellationsContainer.add(constellationGroup);
+            });
+
+            scene.add(allConstellationsContainer);
+        }
+
+        function createEnhancedStar(tool, constellationColor) {
+            const starGroup = new THREE.Group();
+            starGroup.userData = { tool: tool, originalScale: 1 };
+
+            // Enhanced star geometry with multiple layers
+            const coreGeometry = new THREE.SphereGeometry(0.3, 12, 8);
+            const glowGeometry = new THREE.SphereGeometry(0.5, 12, 8);
+            
+            // Core star material
+            const coreMaterial = new THREE.MeshBasicMaterial({
+                color: constellationColor,
+                transparent: true,
+                opacity: 0.9
+            });
+            
+            // Glow material
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: constellationColor,
+                transparent: true,
+                opacity: 0.3,
+                blending: THREE.AdditiveBlending
+            });
+
+            const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
+            const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+            
+            starGroup.add(coreMesh);
+            starGroup.add(glowMesh);
+
+            // Enhanced label
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'star-label';
+            labelDiv.innerHTML = `
+                <div style="
+                    background: rgba(0, 0, 0, 0.8);
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    white-space: nowrap;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                    transform: translateY(-20px);
+                ">
+                    ${tool.icon} ${tool.name}
+                </div>
+            `;
+            
+            const label = new CSS2DObject(labelDiv);
+            label.position.set(0, 1, 0);
+            starGroup.add(label);
+
+            return starGroup;
+        }
+
+        function createEnhancedConnections(group, positions, color) {
+            if (positions.length < 2) return;
+
+            // Create connections between adjacent stars in constellation
+            for (let i = 0; i < positions.length; i++) {
+                const nextIndex = (i + 1) % positions.length;
+                const start = positions[i];
+                const end = positions[nextIndex];
+
+                // Enhanced line geometry with segments for smooth curves
+                const points = [];
+                const segments = 20;
+                
+                for (let j = 0; j <= segments; j++) {
+                    const t = j / segments;
+                    const point = new THREE.Vector3().lerpVectors(start, end, t);
+                    
+                    // Add slight curve for more organic feel
+                    const curvature = Math.sin(t * Math.PI) * 0.5;
+                    point.y += curvature;
+                    
+                    points.push(point);
+                }
+
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                const lineMaterial = new THREE.LineBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.4,
+                    linewidth: 2
+                });
+
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                group.add(line);
+            }
+        }
+
+        async function setupNavigation() {
+            const navContainer = document.getElementById('nav-buttons-container');
+            
+            // Global view button
+            const globalBtn = document.createElement('button');
+            globalBtn.className = 'nav-button active';
+            globalBtn.innerHTML = '🌌 全局视图 | Global';
+            globalBtn.setAttribute('aria-label', 'View all constellations');
+            globalBtn.onclick = () => focusGlobal();
+            navContainer.appendChild(globalBtn);
+
+            // Constellation buttons
+            constellations.forEach(constellation => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-button';
+                btn.innerHTML = `${getConstellationIcon(constellation.name)} ${constellation.name}`;
+                btn.setAttribute('aria-label', `Focus on ${constellation.name} constellation`);
+                btn.onclick = () => focusConstellation(constellation.name);
+                navContainer.appendChild(btn);
+            });
+        }
+
+        function getConstellationIcon(name) {
+            const icons = {
+                '开发星座': '💻',
+                '内容星座': '📝',
+                '效率星座': '⚡'
+            };
+            return icons[name] || '⭐';
+        }
+
+        async function setupEventListeners() {
+            // Enhanced window resize handling
+            window.addEventListener('resize', onWindowResize, { passive: true });
+            
+            // Enhanced click handling with touch support
+            const container = document.getElementById('ai-nebula-container');
+            container.addEventListener('click', onStarClick, { passive: true });
+            container.addEventListener('touchend', onStarClick, { passive: true });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', onKeyDown);
+            
+            // Performance monitoring
+            if (performanceConfig.enableAdaptiveQuality) {
+                setInterval(adaptiveQualityCheck, 1000);
+            }
+            
+            // Hide instructions after delay
+            setTimeout(() => {
+                const instructionText = document.getElementById('instruction-text');
+                if (instructionText) {
+                    instructionText.classList.add('fade-out');
+                }
+            }, 5000);
+        }
+
+        function onWindowResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            
+            renderer.setSize(width, height);
+            labelRenderer.setSize(width, height);
+            
+            // Adaptive particle count on resize
+            if (performanceConfig.enableAdaptiveQuality) {
+                const newParticleCount = Math.min(8000, width * 2);
+                if (Math.abs(newParticleCount - performanceConfig.particleCount) > 1000) {
+                    performanceConfig.particleCount = newParticleCount;
+                    // TODO: Recreate particle system with new count
+                }
+            }
+        }
+
+        function onStarClick(event) {
+            event.preventDefault();
+            
+            // Calculate mouse/touch position
+            const rect = renderer.domElement.getBoundingClientRect();
+            const clientX = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : event.changedTouches[0].clientX);
+            const clientY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : event.changedTouches[0].clientY);
+            
+            mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(starMeshes, true);
+
+            if (intersects.length > 0) {
+                const starGroup = intersects[0].object.parent;
+                if (starGroup.userData && starGroup.userData.tool) {
+                    showToolDetail(starGroup.userData.tool);
+                    
+                    // Add haptic feedback for mobile
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                }
+            }
+        }
+
+        function onKeyDown(event) {
+            switch(event.code) {
+                case 'Escape':
+                    hideToolDetail();
+                    break;
+                case 'KeyF':
+                    // Toggle FPS monitor
+                    toggleFPSMonitor();
+                    break;
+                case 'KeyG':
+                    focusGlobal();
+                    break;
+                case 'Digit1':
+                    focusConstellation('开发星座');
+                    break;
+                case 'Digit2':
+                    focusConstellation('内容星座');
+                    break;
+                case 'Digit3':
+                    focusConstellation('效率星座');
+                    break;
+            }
+        }
+
+        function showToolDetail(tool) {
+            const panel = document.getElementById('tool-detail-panel');
+            
+            // Enhanced tool detail HTML
+            panel.innerHTML = `
+                <button class="close-panel-btn" onclick="hideToolDetail()" aria-label="Close panel">×</button>
+                <div class="detail-header">
+                    <div class="detail-icon">${tool.icon}</div>
+                    <div class="detail-info">
+                        <h3 id="tool-title">${tool.name}</h3>
+                        <span class="detail-category">${tool.category}</span>
+                    </div>
+                </div>
+                <p class="detail-description">${tool.description}</p>
+                <div class="detail-stats">
+                    <div class="proficiency-ring">
+                        <span>${tool.proficiency}%</span>
+                    </div>
+                    <div class="proficiency-info">
+                        <div class="proficiency-label">熟练度 | Proficiency</div>
+                        <div class="proficiency-description">${getProficiencyDescription(tool.proficiency)}</div>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h4 style="margin-bottom: 0.5rem; color: #ffffff;">使用场景 | Use Cases</h4>
+                    <p style="color: #d1d5db; font-size: 0.9rem;">${tool.usage}</p>
+                </div>
+                <div class="detail-features">
+                    ${tool.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                </div>
+            `;
+            
+            panel.classList.add('visible');
+            
+            // Set focus for accessibility
+            panel.setAttribute('aria-labelledby', 'tool-title');
+            panel.focus();
+        }
+
+        function getProficiencyDescription(proficiency) {
+            if (proficiency >= 90) return "专家级 - 深度集成工作流 | Expert Level";
+            if (proficiency >= 80) return "熟练级 - 经常使用 | Proficient";
+            if (proficiency >= 70) return "中级 - 定期使用 | Intermediate";
+            return "初级 - 偶尔使用 | Beginner";
+        }
+
+        window.hideToolDetail = function() {
+            const panel = document.getElementById('tool-detail-panel');
+            panel.classList.remove('visible');
+        }
+
+        function focusGlobal() {
+            isFocused = false;
+            updateNavButtons('global');
+            
+            // Smooth transition to global view
+            animateCamera(new THREE.Vector3(0, 5, 30), new THREE.Vector3(0, 0, 0));
+            
+            // Show all constellations
+            Object.values(constellationGroups).forEach(group => {
+                group.visible = true;
+                group.userData.isVisible = true;
+            });
+        }
+
+        function focusConstellation(constellationName) {
+            isFocused = true;
+            updateNavButtons(constellationName);
+            
+            const targetGroup = constellationGroups[constellationName];
+            if (targetGroup) {
+                // Hide other constellations
+                Object.entries(constellationGroups).forEach(([name, group]) => {
+                    group.visible = (name === constellationName);
+                    group.userData.isVisible = (name === constellationName);
+                });
+                
+                // Focus camera on constellation
+                const box = new THREE.Box3().setFromObject(targetGroup);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fov = camera.fov * (Math.PI / 180);
+                const cameraDistance = Math.abs(maxDim / Math.sin(fov / 2)) * 1.5;
+                
+                const cameraPosition = center.clone();
+                cameraPosition.z += cameraDistance;
+                cameraPosition.y += 2;
+                
+                animateCamera(cameraPosition, center);
+            }
+        }
+
+        function updateNavButtons(activeButton) {
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (
+                    (activeButton === 'global' && btn.innerHTML.includes('全局视图')) ||
+                    (activeButton !== 'global' && btn.innerHTML.includes(activeButton))
+                ) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function animateCamera(targetPosition, targetLookAt, duration = 2000) {
+            const startPosition = camera.position.clone();
+            const startLookAt = controls.target.clone();
+            const startTime = Date.now();
+            
+            function updateCamera() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Smooth easing function
+                const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+                const easedProgress = easeInOutCubic(progress);
+                
+                camera.position.lerpVectors(startPosition, targetPosition, easedProgress);
+                controls.target.lerpVectors(startLookAt, targetLookAt, easedProgress);
+                controls.update();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCamera);
+                }
+            }
+            
+            updateCamera();
+        }
+
+        function initFPSMonitor() {
+            fpsMonitor = document.getElementById('fps-monitor');
+        }
+
+        function toggleFPSMonitor() {
+            if (fpsMonitor) {
+                fpsMonitor.style.display = fpsMonitor.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function updateFPSMonitor() {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime - lastTime >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                if (fpsMonitor && fpsMonitor.style.display !== 'none') {
+                    fpsMonitor.textContent = `FPS: ${fps}`;
+                }
+                frameCount = 0;
+                lastTime = currentTime;
+                return fps;
+            }
+            return null;
+        }
+
+        function adaptiveQualityCheck() {
+            const fps = updateFPSMonitor();
+            if (fps !== null && performanceConfig.enableAdaptiveQuality) {
+                if (fps < 30 && performanceConfig.qualityLevel > 0.5) {
+                    performanceConfig.qualityLevel *= 0.9;
+                    adjustQuality();
+                } else if (fps > 50 && performanceConfig.qualityLevel < 1.0) {
+                    performanceConfig.qualityLevel = Math.min(1.0, performanceConfig.qualityLevel * 1.1);
+                    adjustQuality();
+                }
+            }
+        }
+
+        function adjustQuality() {
+            // Adjust particle opacity based on performance
+            if (particleSystem && particleSystem.material) {
+                particleSystem.material.opacity = 0.8 * performanceConfig.qualityLevel;
+            }
+            
+            // Adjust renderer pixel ratio
+            const pixelRatio = Math.min(window.devicePixelRatio, 2 * performanceConfig.qualityLevel);
+            renderer.setPixelRatio(pixelRatio);
+        }
+
+        function startAnimation() {
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const deltaTime = clock.getDelta();
+            const elapsedTime = clock.getElapsedTime();
+            
+            // Smooth particle rotation
+            if (particleSystem) {
+                particleSystem.rotation.y += deltaTime * 0.05;
+                particleSystem.rotation.x += deltaTime * 0.02;
+            }
+            
+            // Animate constellation rotations
+            Object.values(constellationGroups).forEach((group, index) => {
+                if (group.userData.isVisible) {
+                    group.rotation.y += deltaTime * (0.1 + index * 0.02);
+                }
+            });
+            
+            // Animate star scales with breathing effect
+            starMeshes.forEach((star, index) => {
+                const breathe = 1 + Math.sin(elapsedTime * 2 + index * 0.5) * 0.1;
+                star.scale.setScalar(breathe);
+            });
+            
+            // Update controls
+            controls.update();
+            
+            // Render
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+            
+            // Update FPS monitor
+            updateFPSMonitor();
+        }
+
+        // Error handling and graceful degradation
+        window.addEventListener('error', (event) => {
+            console.error('Runtime error:', event.error);
+            // TODO: Implement fallback UI or error reporting
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            // TODO: Implement fallback UI or error reporting
+        });
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', () => {
+            init().catch(error => {
+                console.error('Failed to initialize application:', error);
+                handleInitializationError(error);
+            });
+        });
+
+        // Export functions for global access
+        window.focusGlobal = focusGlobal;
+        window.focusConstellation = focusConstellation;
+    </script>
+</body>
+</html>
