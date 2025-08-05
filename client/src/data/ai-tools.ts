@@ -2,13 +2,11 @@ export interface AITool {
   id: string;
   name: string;
   category: string;
-  categories?: string[]; // 工具可能属于的多个类别
   description: string;
   usage: string;
   proficiency: number;
   icon: string;
   features: string[];
-  isConnector?: boolean; // 是否是连接节点
 }
 
 export const aiTools: AITool[] = [
@@ -16,25 +14,21 @@ export const aiTools: AITool[] = [
     id: 'claude-code',
     name: 'Claude Code',
     category: '开发AI工具',
-    categories: ['开发AI工具', '效率工具'], // Claude Code同时用于开发和提升效率
     description: '主力AI工具，终端命令行AI助手，深度集成开发工作流程。提供实时代码建议、系统诊断和工作流优化。',
     usage: '日常编程、系统管理、问题解决',
     proficiency: 95,
     icon: '🤖',
     features: ['命令行集成', '代码生成', '系统诊断', '工作流优化', '实时建议'],
-    isConnector: true
   },
   {
     id: 'claude-web',
-    name: 'Claude (网页版)',
+    name: 'Claude',
     category: '内容创作',
-    categories: ['开发AI工具', '内容创作', '效率工具'], // Claude涵盖开发、内容创作和生产力
     description: '最早接触的AI工具，用于学习、研究和内容创作。强大的自然语言处理能力，支持复杂任务推理。',
     usage: '研究分析、写作辅助、学习讨论',
     proficiency: 90,
     icon: '💬',
     features: ['自然对话', '研究分析', '创作辅助', '多语言支持', '推理能力'],
-    isConnector: true
   },
   {
     id: 'cursor',
@@ -50,17 +44,15 @@ export const aiTools: AITool[] = [
     id: 'bolt',
     name: 'Bolt',
     category: '开发AI工具',
-    categories: ['开发AI工具', '效率工具'], // Bolt加速开发流程，提升效率
     description: '快速原型和全栈开发AI助手，能够从想法快速生成可运行的应用程序。',
     usage: '快速原型、全栈开发、想法验证',
     proficiency: 75,
     icon: '⚡',
     features: ['快速原型', '全栈生成', '即时预览', '部署集成', '模板库'],
-    isConnector: true
   },
   {
     id: 'deepseek-api',
-    name: 'DeepSeek API',
+    name: 'DeepSeek',
     category: '开发AI工具',
     description: '高性能的AI API服务，提供强大的推理能力和代码生成功能，成本效益极高。',
     usage: 'API集成、自动化任务、批量处理',
@@ -72,37 +64,31 @@ export const aiTools: AITool[] = [
     id: 'v0',
     name: 'v0 by Vercel',
     category: '开发AI工具',
-    categories: ['开发AI工具', '内容创作'], // v0用于UI生成和设计内容创作
     description: 'AI驱动的UI生成器，将自然语言描述转换为React组件，支持Tailwind CSS和shadcn/ui。',
     usage: 'UI组件生成、快速原型、前端开发',
     proficiency: 80,
     icon: '🎨',
     features: ['文本到UI', 'React组件', 'Tailwind CSS', '即时预览', '多模态输入'],
-    isConnector: true
   },
   {
     id: 'replit',
     name: 'Replit Agent',
     category: '开发AI工具',
-    categories: ['开发AI工具', '效率工具'], // Replit用于开发和提升工作效率
     description: '云端AI开发平台，将自然语言转换为完整应用，包含前后端、数据库和部署。',
     usage: '全栈开发、快速原型、协作编程',
     proficiency: 85,
     icon: '🚀',
     features: ['AI Agent', '云端IDE', '一键部署', '实时协作', '多语言支持'],
-    isConnector: true
   },
   {
     id: 'lovable',
     name: 'Lovable',
     category: '开发AI工具',
-    categories: ['开发AI工具', '效率工具'], // Lovable帮助快速构建应用，提升效率
     description: 'AI全栈应用构建器，通过自然语言生成完整Web应用，提供代码所有权。',
     usage: 'MVP开发、应用原型、无代码开发',
     proficiency: 75,
     icon: '💝',
     features: ['自然语言编程', '全栈生成', 'GitHub集成', '实时预览', '代码导出'],
-    isConnector: true
   },
   {
     id: 'roo-code',
@@ -128,25 +114,21 @@ export const aiTools: AITool[] = [
     id: 'gamma',
     name: 'Gamma',
     category: '内容创作',
-    categories: ['内容创作', '效率工具'], // Gamma加速演示文稿制作，提升效率
     description: 'AI驱动的演示文稿和文档创建工具，能够快速生成专业级的视觉内容。',
     usage: '演示文稿、文档设计、视觉内容',
     proficiency: 70,
     icon: '📊',
     features: ['自动设计', '模板生成', '内容优化', '协作功能', '导出选项'],
-    isConnector: true
   },
   {
     id: 'wispr-flow',
     name: 'Wispr Flow',
     category: '内容创作',
-    categories: ['内容创作', '效率工具'], // Wispr Flow提升语音转文字效率
     description: '先进的语音转文字AI工具，支持实时转录和多语言识别，准确率极高。',
     usage: '语音转录、会议记录、内容创作',
     proficiency: 85,
     icon: '🎙️',
     features: ['实时转录', '多语言支持', '高准确率', '标点智能', '格式化输出'],
-    isConnector: true
   },
   {
     id: 'jimeng',
@@ -162,13 +144,11 @@ export const aiTools: AITool[] = [
     id: 'doubao',
     name: '豆包 AI',
     category: '内容创作',
-    categories: ['内容创作', '效率工具'], // 豆包支持多种内容创作和提升效率
     description: '字节跳动的旗舰AI助手，中国最受欢迎的消费级AI应用，支持多模态功能。',
     usage: '对话交互、图像生成、内容创作',
     proficiency: 76,
     icon: '🌱',
     features: ['多模态AI', '图像生成', '视频生成', '3D生成', '极低价格'],
-    isConnector: true
   },
   {
     id: 'n8n',
@@ -184,25 +164,21 @@ export const aiTools: AITool[] = [
     id: 'notebookllm',
     name: 'NotebookLM',
     category: '效率工具',
-    categories: ['内容创作', '效率工具'], // NotebookLM帮助研究和内容创作
     description: 'Google的AI研究助手，能够基于用户文档创建个性化的AI研究伙伴。',
     usage: '文档分析、研究辅助、知识提取',
     proficiency: 72,
     icon: '📚',
     features: ['文档理解', '知识提取', '个性化AI', '研究助手', '引用追踪'],
-    isConnector: true
   },
   {
     id: 'perplexity',
     name: 'Perplexity',
     category: '效率工具',
-    categories: ['内容创作', '效率工具'], // Perplexity帮助研究和内容创作
     description: 'AI驱动的搜索引擎，提供实时准确的答案，带有引用来源。',
     usage: '研究搜索、实时信息、知识获取',
     proficiency: 83,
     icon: '🔍',
     features: ['实时搜索', '引用来源', '深度研究', 'API访问', '多模态搜索'],
-    isConnector: true
   }
 ];
 
@@ -218,22 +194,22 @@ export const constellations: Constellation[] = [
   { 
     name: "开发星座", 
     nameEn: "Development",
-    color: 0x60a5fa, 
+    color: 0x3b82f6, // 蓝色 - 代表技术和编程
     tools: ['cursor', 'deepseek-api', 'v0', 'roo-code', 'claude-code', 'bolt', 'replit', 'lovable'],
     description: "编程开发相关的AI工具集合"
   },
   { 
     name: "内容星座", 
     nameEn: "Content",
-    color: 0xf472b6, 
-    tools: ['gemini', 'jimeng', 'v0', 'claude-web', 'gamma', 'wispr-flow', 'doubao', 'notebookllm', 'perplexity'],
+    color: 0x10b981, // 绿色 - 代表创造力和内容生产
+    tools: ['gemini', 'jimeng', 'claude-web', 'gamma', 'wispr-flow', 'doubao'],
     description: "内容创作和多媒体处理工具"
   },
   { 
     name: "效率星座", 
     nameEn: "Productivity",
-    color: 0xfacc15, 
-    tools: ['n8n', 'claude-code', 'bolt', 'replit', 'lovable', 'claude-web', 'gamma', 'wispr-flow', 'doubao', 'notebookllm', 'perplexity'],
+    color: 0xf59e0b, // 橙色 - 代表效率和生产力
+    tools: ['n8n', 'notebookllm', 'perplexity'],
     description: "提升工作效率的自动化工具"
   }
 ];

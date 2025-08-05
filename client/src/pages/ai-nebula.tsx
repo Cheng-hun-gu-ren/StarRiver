@@ -93,15 +93,15 @@ export default function AINebulaPage() {
         ref={containerRef}
         className="ai-nebula-container"
         role="application"
-        aria-label="3D AI Tools Constellation Visualization"
+        aria-label="晨昏故人的3D AI工具星座可视化"
       />
 
       {/* UI Overlay */}
       <div className="ui-overlay">
         <header className="header-section">
-          <h1 className="main-title">AI 工具星云</h1>
+          <h1 className="main-title">晨昏故人的AI工具星云</h1>
           <p className="subtitle">
-            交互式AI工具知识图谱 | Interactive AI Tools Knowledge Graph
+            晨昏故人的AI工具交互知识图谱 | Interactive AI Tools Knowledge Graph
           </p>
         </header>
 

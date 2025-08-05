@@ -1,22 +1,35 @@
-// Tool logo URLs from CDN services
+// Import local icons
+import cursorIcon from './icons/Cursor.png';
+import rooCodeIcon from './icons/Roo Code.png';
+import wisprFlowIcon from './icons/Wispr flow.png';
+import boltIcon from './icons/bolt.png';
+import deepseekIcon from './icons/deepseek-color.png';
+import geminiIcon from './icons/gemini-color.png';
+import lovableIcon from './icons/lovable.ico';
+import n8nIcon from './icons/n8n.ico';
+import replitIcon from './icons/repllit.webp';
+import jimengIcon from './icons/即梦.ico';
+import claudeIcon from './icons/claude.ico';
+import v0Icon from './icons/v0.png';
+import doubaoIcon from './icons/豆包.png';
+
+// Tool logo URLs - using local icons only
 export const toolLogos: Record<string, string> = {
-  'claude-code': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.svg',
-  'claude-web': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.svg',
-  'cursor': 'https://raw.githubusercontent.com/getcursor/cursor/main/resources/app/resources/win32/cursor.ico',
-  'bolt': 'https://www.stackblitz.com/favicon.ico',
-  'deepseek-api': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/deepseek-logo-icon.svg',
-  'gemini': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-gemini-icon.svg',
-  'gamma': 'https://gamma.app/favicon.ico',
-  'wispr-flow': 'https://wispr.com/favicon.ico',
-  'n8n': 'https://n8n.io/favicon.ico',
-  'notebookllm': 'https://notebooklm.google.com/favicon.ico',
-  'v0': 'https://v0.dev/favicon.ico',
-  'replit': 'https://replit.com/favicon.ico',
-  'jimeng': 'https://jimeng.jianying.com/favicon.ico',
-  'doubao': 'https://seed.bytedance.com/favicon.ico',
-  'perplexity': 'https://www.perplexity.ai/favicon.ico',
-  'lovable': 'https://lovable.dev/favicon.ico',
-  'roo-code': 'https://marketplace.visualstudio.com/favicon.ico'
+  'cursor': cursorIcon,
+  'bolt': boltIcon,
+  'deepseek-api': deepseekIcon,
+  'gemini': geminiIcon,
+  'wispr-flow': wisprFlowIcon,
+  'n8n': n8nIcon,
+  'replit': replitIcon,
+  'jimeng': jimengIcon,
+  'lovable': lovableIcon,
+  'roo-code': rooCodeIcon,
+  'claude-code': claudeIcon,
+  'claude-web': claudeIcon,
+  'v0': v0Icon,
+  'doubao': doubaoIcon
+  // 其他工具将使用emoji备用图标
 };
 
 // Fallback emoji icons if logos fail to load
