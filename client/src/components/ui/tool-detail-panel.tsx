@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { AITool } from '@/data/ai-tools';
+import { toolLogos, toolEmojis } from '@/assets/tool-logos';
 
 interface ToolDetailPanelProps {
   tool: AITool | null;
@@ -54,7 +55,36 @@ export function ToolDetailPanel({ tool, isVisible, onClose }: ToolDetailPanelPro
       </button>
       
       <div className="detail-header">
-        <div className="detail-icon">{tool.icon}</div>
+        <div className="detail-icon">
+          {toolLogos[tool.id] ? (
+            <>
+              <img 
+                src={toolLogos[tool.id]} 
+                alt={tool.name}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  filter: 'brightness(0) invert(1)'
+                }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.parentElement?.querySelector('.emoji-fallback') as HTMLElement;
+                  if (fallback) {
+                    fallback.style.display = 'inline';
+                  }
+                }}
+              />
+              <span className="emoji-fallback" style={{ display: 'none', fontSize: '24px' }}>
+                {toolEmojis[tool.id] || tool.icon}
+              </span>
+            </>
+          ) : (
+            <span style={{ fontSize: '24px' }}>
+              {toolEmojis[tool.id] || tool.icon}
+            </span>
+          )}
+        </div>
         <div className="detail-info">
           <h3 id="tool-title">{tool.name}</h3>
           <span className="detail-category">{tool.category}</span>
