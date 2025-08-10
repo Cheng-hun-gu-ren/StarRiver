@@ -84,7 +84,7 @@ export function useThreeScene({
       onLoadingProgress(30, "创建粒子系统...");
       const particleSystem = await createParticles(scene);
 
-      onLoadingProgress(50, "构建星座...");
+      onLoadingProgress(50, "构建星系...");
       const { starMeshes, constellationGroups, allConstellationsContainer, interConnections } = 
         await createConstellations(scene);
 
@@ -267,9 +267,9 @@ export function useThreeScene({
         // Find the tool's position in each constellation it belongs to
         tool.categories.forEach(category => {
           const constellation = constellations.find(c => 
-            (category === '开发AI工具' && c.name === '开发星座') ||
-            (category === '内容创作' && c.name === '内容星座') ||
-            (category === '效率工具' && c.name === '效率星座')
+            (category === '开发AI工具' && c.name === '开发星系') ||
+            (category === '内容创作' && c.name === '内容星系') ||
+            (category === '效率工具' && c.name === '效率星系')
           );
           
           if (constellation && constellationGroups[constellation.name]) {

@@ -52,13 +52,13 @@ export default function AINebulaPage() {
           setActiveView('global');
           break;
         case 'Digit1':
-          setActiveView('开发星座');
+          setActiveView('开发星系');
           break;
         case 'Digit2':
-          setActiveView('内容星座');
+          setActiveView('内容星系');
           break;
         case 'Digit3':
-          setActiveView('效率星座');
+          setActiveView('效率星系');
           break;
       }
     };
@@ -93,7 +93,7 @@ export default function AINebulaPage() {
         ref={containerRef}
         className="ai-nebula-container"
         role="application"
-        aria-label="晨昏故人的3D AI工具星座可视化"
+        aria-label="晨昏故人的3D AI工具星系可视化"
       />
 
       {/* UI Overlay */}

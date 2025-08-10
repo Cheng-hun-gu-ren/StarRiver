@@ -87,7 +87,32 @@ export function ToolDetailPanel({ tool, isVisible, onClose }: ToolDetailPanelPro
         </div>
         <div className="detail-info">
           <h3 id="tool-title">{tool.name}</h3>
-          <span className="detail-category">{tool.category}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="detail-category">{tool.category}</span>
+            <a 
+              href={tool.website} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: '#ffffff',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                textDecoration: 'none',
+                fontSize: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+              }}
+            >
+              官网链接
+            </a>
+          </div>
         </div>
       </div>
       

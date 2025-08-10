@@ -9,9 +9,9 @@ interface NavigationButtonsProps {
 
 function getConstellationIcon(name: string): string {
   const icons: Record<string, string> = {
-    '开发星座': '💻',
-    '内容星座': '📝',
-    '效率星座': '⚡'
+    '开发星系': '💻',
+    '内容星系': '📝',
+    '效率星系': '⚡'
   };
   return icons[name] || '⭐';
 }
@@ -55,7 +55,7 @@ export function NavigationButtons({
                 key={constellation.name}
                 className={`nav-button ${activeView === constellation.name ? 'active' : ''}`}
                 onClick={() => onConstellationView(constellation.name)}
-                aria-label={`Focus on ${constellation.name} constellation`}
+                aria-label={`Focus on ${constellation.name} galaxy`}
               >
                 {getConstellationIcon(constellation.name)} {constellation.name}
               </button>

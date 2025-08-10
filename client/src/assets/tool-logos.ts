@@ -8,10 +8,13 @@ import geminiIcon from './icons/gemini-color.png';
 import lovableIcon from './icons/lovable.ico';
 import n8nIcon from './icons/n8n.ico';
 import replitIcon from './icons/repllit.webp';
-import jimengIcon from './icons/即梦.ico';
+import jimengIcon from './icons/即梦.png';
 import claudeIcon from './icons/claude.ico';
 import v0Icon from './icons/v0.png';
 import doubaoIcon from './icons/豆包.png';
+import gammaIcon from './icons/Gamma-App-Logo.webp';
+import notebooklmIcon from './icons/notebooklm.png';
+import perplexityIcon from './icons/perplexity.png';
 
 // Tool logo URLs - using local icons only
 export const toolLogos: Record<string, string> = {
@@ -28,7 +31,10 @@ export const toolLogos: Record<string, string> = {
   'claude-code': claudeIcon,
   'claude-web': claudeIcon,
   'v0': v0Icon,
-  'doubao': doubaoIcon
+  'doubao': doubaoIcon,
+  'gamma': gammaIcon,
+  'notebookllm': notebooklmIcon,
+  'perplexity': perplexityIcon,
   // 其他工具将使用emoji备用图标
 };
 

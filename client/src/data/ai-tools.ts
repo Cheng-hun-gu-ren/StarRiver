@@ -7,6 +7,7 @@ export interface AITool {
   proficiency: number;
   icon: string;
   features: string[];
+  website: string;
 }
 
 export const aiTools: AITool[] = [
@@ -19,6 +20,7 @@ export const aiTools: AITool[] = [
     proficiency: 95,
     icon: '🤖',
     features: ['命令行集成', '代码生成', '系统诊断', '工作流优化', '实时建议'],
+    website: 'https://claude.ai/',
   },
   {
     id: 'claude-web',
@@ -29,6 +31,7 @@ export const aiTools: AITool[] = [
     proficiency: 90,
     icon: '💬',
     features: ['自然对话', '研究分析', '创作辅助', '多语言支持', '推理能力'],
+    website: 'https://claude.ai/',
   },
   {
     id: 'cursor',
@@ -38,7 +41,8 @@ export const aiTools: AITool[] = [
     usage: '代码编写、重构、调试',
     proficiency: 88,
     icon: '⌨️',
-    features: ['智能补全', 'AI重构', '代码解释', '快速修复', '上下文感知']
+    features: ['智能补全', 'AI重构', '代码解释', '快速修复', '上下文感知'],
+    website: 'https://cursor.com/',
   },
   {
     id: 'bolt',
@@ -49,6 +53,7 @@ export const aiTools: AITool[] = [
     proficiency: 75,
     icon: '⚡',
     features: ['快速原型', '全栈生成', '即时预览', '部署集成', '模板库'],
+    website: 'https://bolt.new/',
   },
   {
     id: 'deepseek-api',
@@ -58,7 +63,8 @@ export const aiTools: AITool[] = [
     usage: 'API集成、自动化任务、批量处理',
     proficiency: 82,
     icon: '🔌',
-    features: ['高性能API', '代码生成', '批量处理', '成本效益', '易集成']
+    features: ['高性能API', '代码生成', '批量处理', '成本效益', '易集成'],
+    website: 'https://www.deepseek.com/',
   },
   {
     id: 'v0',
@@ -69,6 +75,7 @@ export const aiTools: AITool[] = [
     proficiency: 80,
     icon: '🎨',
     features: ['文本到UI', 'React组件', 'Tailwind CSS', '即时预览', '多模态输入'],
+    website: 'https://v0.dev/',
   },
   {
     id: 'replit',
@@ -79,6 +86,7 @@ export const aiTools: AITool[] = [
     proficiency: 85,
     icon: '🚀',
     features: ['AI Agent', '云端IDE', '一键部署', '实时协作', '多语言支持'],
+    website: 'https://replit.com/ai',
   },
   {
     id: 'lovable',
@@ -89,6 +97,7 @@ export const aiTools: AITool[] = [
     proficiency: 75,
     icon: '💝',
     features: ['自然语言编程', '全栈生成', 'GitHub集成', '实时预览', '代码导出'],
+    website: 'https://lovable.dev/',
   },
   {
     id: 'roo-code',
@@ -98,7 +107,8 @@ export const aiTools: AITool[] = [
     usage: 'VS Code开发、代码审查、架构设计',
     proficiency: 78,
     icon: '🦘',
-    features: ['多模式AI', '自主开发', 'MCP集成', '浏览器自动化', '成本优化']
+    features: ['多模式AI', '自主开发', 'MCP集成', '浏览器自动化', '成本优化'],
+    website: 'https://roocode.com/',
   },
   {
     id: 'gemini',
@@ -108,7 +118,8 @@ export const aiTools: AITool[] = [
     usage: '多模态分析、图像处理、视频理解',
     proficiency: 78,
     icon: '💎',
-    features: ['多模态处理', '图像分析', '视频理解', '复杂推理', '大上下文']
+    features: ['多模态处理', '图像分析', '视频理解', '复杂推理', '大上下文'],
+    website: 'https://gemini.google.com/',
   },
   {
     id: 'gamma',
@@ -119,6 +130,7 @@ export const aiTools: AITool[] = [
     proficiency: 70,
     icon: '📊',
     features: ['自动设计', '模板生成', '内容优化', '协作功能', '导出选项'],
+    website: 'https://gamma.app/',
   },
   {
     id: 'wispr-flow',
@@ -129,6 +141,7 @@ export const aiTools: AITool[] = [
     proficiency: 85,
     icon: '🎙️',
     features: ['实时转录', '多语言支持', '高准确率', '标点智能', '格式化输出'],
+    website: 'https://wisprflow.ai/',
   },
   {
     id: 'jimeng',
@@ -138,7 +151,8 @@ export const aiTools: AITool[] = [
     usage: '视频创作、社交媒体、营销内容',
     proficiency: 72,
     icon: '🎬',
-    features: ['文本生成视频', '图像生成视频', '智能画布', '故事创作', '中文优化']
+    features: ['文本生成视频', '图像生成视频', '智能画布', '故事创作', '中文优化'],
+    website: 'https://jimeng.jianying.com/',
   },
   {
     id: 'doubao',
@@ -149,6 +163,7 @@ export const aiTools: AITool[] = [
     proficiency: 76,
     icon: '🌱',
     features: ['多模态AI', '图像生成', '视频生成', '3D生成', '极低价格'],
+    website: 'https://www.doubao.com/',
   },
   {
     id: 'n8n',
@@ -158,7 +173,8 @@ export const aiTools: AITool[] = [
     usage: '工作流自动化、数据集成、任务编排',
     proficiency: 80,
     icon: '🔄',
-    features: ['可视化编排', '丰富集成', '自定义节点', '开源免费', '企业级']
+    features: ['可视化编排', '丰富集成', '自定义节点', '开源免费', '企业级'],
+    website: 'https://n8n.io/',
   },
   {
     id: 'notebookllm',
@@ -169,6 +185,7 @@ export const aiTools: AITool[] = [
     proficiency: 72,
     icon: '📚',
     features: ['文档理解', '知识提取', '个性化AI', '研究助手', '引用追踪'],
+    website: 'https://notebooklm.google.com/',
   },
   {
     id: 'perplexity',
@@ -179,6 +196,7 @@ export const aiTools: AITool[] = [
     proficiency: 83,
     icon: '🔍',
     features: ['实时搜索', '引用来源', '深度研究', 'API访问', '多模态搜索'],
+    website: 'https://www.perplexity.ai/',
   }
 ];
 
@@ -192,21 +210,21 @@ export interface Constellation {
 
 export const constellations: Constellation[] = [
   { 
-    name: "开发星座", 
+    name: "开发星系", 
     nameEn: "Development",
     color: 0x3b82f6, // 蓝色 - 代表技术和编程
     tools: ['cursor', 'deepseek-api', 'v0', 'roo-code', 'claude-code', 'bolt', 'replit', 'lovable'],
     description: "编程开发相关的AI工具集合"
   },
   { 
-    name: "内容星座", 
+    name: "内容星系", 
     nameEn: "Content",
     color: 0x10b981, // 绿色 - 代表创造力和内容生产
     tools: ['gemini', 'jimeng', 'claude-web', 'gamma', 'wispr-flow', 'doubao'],
     description: "内容创作和多媒体处理工具"
   },
   { 
-    name: "效率星座", 
+    name: "效率星系", 
     nameEn: "Productivity",
     color: 0xf59e0b, // 橙色 - 代表效率和生产力
     tools: ['n8n', 'notebookllm', 'perplexity'],
